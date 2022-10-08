@@ -57,8 +57,7 @@ public class User extends BaseEntity {
     public User(String email, String password,
                 String nickname, AgeGroup ageGroup,
                 Gender gender, Job job,
-                String profile_image, Boolean isWithdraw,
-                LocalDateTime withdrawAt) {
+                String profile_image) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -66,7 +65,6 @@ public class User extends BaseEntity {
         this.gender = gender;
         this.job = job;
         this.profile_image = profile_image;
-        this.isWithdraw = isWithdraw;
-        this.withdrawAt = withdrawAt;
+        this.isWithdraw = false;
     }
 }
