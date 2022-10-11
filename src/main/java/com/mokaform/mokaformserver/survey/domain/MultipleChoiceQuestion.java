@@ -22,8 +22,9 @@ public class MultipleChoiceQuestion extends BaseEntity {
     @Column(name = "multi_question_id", length = 320)
     private Long multi_question_id;
 
-    @Column(name = "question_id", nullable = false, length = 320)
-    private Long question_id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", referencedColumnName = "question_id", nullable = false)
+    private QuestionTmp questionTmp;
 
     @Column(name = "multi_question_type", nullable = false, length = 20)
     @Enumerated(value = EnumType.STRING)
@@ -42,9 +43,9 @@ public class MultipleChoiceQuestion extends BaseEntity {
     private LocalDateTime updated_at;
 
     @Builder
-    public MultipleChoiceQuestion(Long question_id,
+    public MultipleChoiceQuestion(QuestionTmp questionTmp,
                                   MultiQuestionType multi_question_type, String multi_question_content, Integer multi_question_index) {
-        this.question_id = question_id;
+        this.questionTmp = questionTmp;
         this.multi_question_type = multi_question_type;
         this.multi_question_content = multi_question_content;
         this.multi_question_index = multi_question_index;

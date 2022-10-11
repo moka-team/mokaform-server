@@ -2,25 +2,25 @@ package com.mokaform.mokaformserver.survey.controller;
 
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveySaveRequest;
-import com.mokaform.mokaformserver.survey.service.SurveyService;
+import com.mokaform.mokaformserver.survey.service.CreateSurveyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/v1/survey")
 public class SurveyController {
-    private final SurveyService surveyService;
+    private final CreateSurveyService createSurveyService;
 
-    public SurveyController(SurveyService surveyService) {
-        this.surveyService = surveyService;
+
+    public SurveyController(CreateSurveyService createSurveyService) {
+        this.createSurveyService = createSurveyService;
     }
 
     @PostMapping("/save")
     public ResponseEntity<ApiResponse> saveSurvey(@RequestBody @Valid SurveySaveRequest request) {
-        surveyService.saveSurvey(request);
+        createSurveyService.saveSurvey(request);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()

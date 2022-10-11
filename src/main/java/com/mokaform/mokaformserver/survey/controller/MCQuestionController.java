@@ -2,7 +2,7 @@ package com.mokaform.mokaformserver.survey.controller;
 
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.survey.dto.request.MCQuestionSaveRequest;
-import com.mokaform.mokaformserver.survey.service.MCQuestionService;
+import com.mokaform.mokaformserver.survey.service.CreateSurveyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,15 +14,15 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/mc-question")
 public class MCQuestionController {
-    private final MCQuestionService mcQuestionService;
+    private final CreateSurveyService createSurveyService;
 
-    public MCQuestionController(MCQuestionService mcQuestionService) {
-        this.mcQuestionService = mcQuestionService;
+    public MCQuestionController(CreateSurveyService createSurveyService) {
+        this.createSurveyService = createSurveyService;
     }
 
     @PostMapping("/save")
     public ResponseEntity<ApiResponse> saveMCQuestion(@RequestBody @Valid MCQuestionSaveRequest request) {
-        mcQuestionService.saveMCQuestion(request);
+        createSurveyService.saveMCQuestion(request);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()

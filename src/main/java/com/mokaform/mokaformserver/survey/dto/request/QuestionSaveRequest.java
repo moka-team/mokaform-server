@@ -10,9 +10,6 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class QuestionSaveRequest {
     @NotNull
-    private Long survey_id;
-
-    @NotNull
     private String title;
 
     @NotNull
@@ -25,8 +22,7 @@ public class QuestionSaveRequest {
     private Boolean is_multi_answer;
 
     @Builder
-    public QuestionSaveRequest(Long survey_id, String title, Long index, QuestionType type, Boolean is_multi_answer) {
-        this.survey_id = survey_id;
+    public QuestionSaveRequest(String title, Long index, QuestionType type, Boolean is_multi_answer) {
         this.title = title;
         this.index = index;
         this.type = type;
