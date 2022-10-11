@@ -22,7 +22,7 @@ public class Survey extends BaseEntity {
     private Long survey_id;
 
     @Column(name = "surveyor_id", nullable = false, length = 320)
-    private String surveyor_id;
+    private Long surveyor_id;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;
@@ -52,16 +52,17 @@ public class Survey extends BaseEntity {
     private LocalDateTime updated_at;
 
     @Builder
-    public Survey(String surveyor_id, String title,
-                    String sharing_key) {
+    public Survey(Long surveyor_id, String title,
+                    Boolean is_anonymous, Boolean is_public,
+                  Boolean is_deleted, String sharing_key) {
         this.surveyor_id = surveyor_id;
         this.title = title;
         this.start_date = LocalDateTime.now();
         this.end_date = LocalDateTime.now();
-        this.is_anonymous = false;
-        this.is_public = false;
+        this.is_anonymous = is_anonymous;
+        this.is_public = is_public;
         this.sharing_key = sharing_key;
-        this.is_deleted = false;
+        this.is_deleted = is_deleted;
         this.created_at = LocalDateTime.now();
         this.updated_at = LocalDateTime.now();
 

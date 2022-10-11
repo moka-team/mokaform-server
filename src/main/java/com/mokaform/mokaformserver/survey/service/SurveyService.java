@@ -19,6 +19,9 @@ public class SurveyService {
         Survey survey = Survey.builder()
                 .surveyor_id(request.getSurveyor_id())
                 .title(request.getTitle())
+                .is_anonymous(request.getIs_anonymous())
+                .is_public(request.getIs_public())
+                .is_deleted(request.getIs_deleted())
                 .sharing_key(request.getSharing_key())
                 .build();
 
