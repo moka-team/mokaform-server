@@ -24,6 +24,7 @@ public class PreferenceCategory extends BaseEntity {
     private User user;
 
     @Column(name = "category_name", nullable = false, length = 20)
+    @Enumerated(value = EnumType.STRING)
     private Category category;
 
     public PreferenceCategory(User user, Category category) {
