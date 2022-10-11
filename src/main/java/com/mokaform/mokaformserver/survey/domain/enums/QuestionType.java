@@ -1,6 +1,7 @@
 package com.mokaform.mokaformserver.survey.domain.enums;
 
 public enum QuestionType {
-    GENERAL,
-    CARD
+    ESSAY,
+    MULTIPLE_CHOICE,
+    OX
 }
