@@ -42,15 +42,13 @@ public class MultipleChoiceQuestion extends BaseEntity {
     private LocalDateTime updated_at;
 
     @Builder
-    public MultipleChoiceQuestion(Long multi_question_id, Long question_id,
-                                  MultiQuestionType multi_question_type, String multi_question_content, Integer multi_question_index,
-                                  LocalDateTime created_at, LocalDateTime updated_at) {
-        this.multi_question_id = multi_question_id;
+    public MultipleChoiceQuestion(Long question_id,
+                                  MultiQuestionType multi_question_type, String multi_question_content, Integer multi_question_index) {
         this.question_id = question_id;
         this.multi_question_type = multi_question_type;
         this.multi_question_content = multi_question_content;
         this.multi_question_index = multi_question_index;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
     }
 }

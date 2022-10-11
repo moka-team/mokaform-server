@@ -43,13 +43,13 @@ public class QuestionTmp extends BaseEntity {
 
 
     @Builder
-    public QuestionTmp(Long survey_id, String title, Long index, QuestionType type, Boolean is_multi_answer, LocalDateTime created_at, LocalDateTime updated_at){
+    public QuestionTmp(Long survey_id, String title, Long index, QuestionType type, Boolean is_multi_answer){
         this.survey_id = survey_id;
         this.title= title;
         this.index = index;
         this.type = type;
         this.is_multi_answer = is_multi_answer;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
     }
 }
