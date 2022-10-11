@@ -22,6 +22,7 @@ public class MultipleChoiceQuestion extends BaseEntity {
     @Column(name = "multi_question_id", length = 320)
     private Long multi_question_id;
 
+
     @Column(name = "question_id", nullable = false, length = 320)
     private Long question_id;
 

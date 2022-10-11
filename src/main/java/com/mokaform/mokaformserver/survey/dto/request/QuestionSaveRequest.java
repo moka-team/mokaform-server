@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.survey.dto.request;
 
+import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class QuestionSaveRequest {
     @NotNull
-    private Long survey_id;
+    private Survey survey;
 
     @NotNull
     private String title;
@@ -25,8 +26,8 @@ public class QuestionSaveRequest {
     private Boolean is_multi_answer;
 
     @Builder
-    public QuestionSaveRequest(Long survey_id, String title, Long index, QuestionType type, Boolean is_multi_answer) {
-        this.survey_id = survey_id;
+    public QuestionSaveRequest(Survey survey, String title, Long index, QuestionType type, Boolean is_multi_answer) {
+        this.survey = survey;
         this.title = title;
         this.index = index;
         this.type = type;

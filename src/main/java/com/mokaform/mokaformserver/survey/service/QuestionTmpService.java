@@ -15,7 +15,7 @@ public class QuestionTmpService {
 
     public void saveQuestionTmp(QuestionSaveRequest request) {
         QuestionTmp questionTmp = QuestionTmp.builder()
-                .survey_id(request.getSurvey_id())
+                .survey(request.getSurvey())
                 .title(request.getTitle())
                 .index(request.getIndex())
                 .type(request.getType())

@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "survey")
@@ -18,7 +20,7 @@ public class Survey extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "survey_id", length = 320)
+    @Column(name = "survey_id")
     private Long survey_id;
 
     @Column(name = "surveyor_id", nullable = false, length = 320)
@@ -27,10 +29,10 @@ public class Survey extends BaseEntity {
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date", nullable = true)
     private LocalDateTime start_date;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date", nullable = true)
     private LocalDateTime end_date;
 
     @Column(name = "is_anonymous", nullable = false)
@@ -50,6 +52,9 @@ public class Survey extends BaseEntity {
 
     @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime updated_at;
+
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL)
+    private List<QuestionTmp> questionTmpList = new ArrayList<>();
 
     @Builder
     public Survey(Long surveyor_id, String title,

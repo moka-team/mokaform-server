@@ -20,8 +20,9 @@ public class QuestionTmp extends BaseEntity {
     @Column(name = "question_id")
     private Long id;
 
-    @Column(name = "survey_id")
-    private Long survey_id;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "survey_id")
+    private Survey survey;
 
     @Column(name = "question_title", length = 255)
     private String title;
@@ -41,10 +42,9 @@ public class QuestionTmp extends BaseEntity {
     @Column(name = "updated_at",insertable = false, updatable = false)
     private LocalDateTime updated_at;
 
-
     @Builder
-    public QuestionTmp(Long survey_id, String title, Long index, QuestionType type, Boolean is_multi_answer){
-        this.survey_id = survey_id;
+    public QuestionTmp(Survey survey, String title, Long index, QuestionType type, Boolean is_multi_answer){
+        this.survey = survey;
         this.title= title;
         this.index = index;
         this.type = type;
