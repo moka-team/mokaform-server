@@ -1,6 +1,7 @@
 package com.mokaform.mokaformserver.survey.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
+import com.mokaform.mokaformserver.survey.domain.enums.MultiQuestionType;
 import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class MultipleChoiceQuestion extends BaseEntity {
 
     @Column(name = "multi_question_type", nullable = false, length = 20)
     @Enumerated(value = EnumType.STRING)
-    private QuestionType multi_question_type;
+    private MultiQuestionType multi_question_type;
 
     @Column(name = "multi_question_content", nullable = false, length = 255)
     private String multi_question_content;
@@ -34,15 +35,15 @@ public class MultipleChoiceQuestion extends BaseEntity {
     @Column(name = "multi_question_index", nullable = false)
     private Integer multi_question_index;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime created_at;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime updated_at;
 
     @Builder
     public MultipleChoiceQuestion(Long multi_question_id, Long question_id,
-                                  QuestionType multi_question_type, String multi_question_content, Integer multi_question_index,
+                                  MultiQuestionType multi_question_type, String multi_question_content, Integer multi_question_index,
                                   LocalDateTime created_at, LocalDateTime updated_at) {
         this.multi_question_id = multi_question_id;
         this.question_id = question_id;

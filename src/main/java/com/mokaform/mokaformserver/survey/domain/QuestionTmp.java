@@ -35,10 +35,10 @@ public class QuestionTmp extends BaseEntity {
     @Column(name = "is_multi_answer")
     private Boolean is_multi_answer;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at",insertable = false, updatable = false)
     private LocalDateTime created_at;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at",insertable = false, updatable = false)
     private LocalDateTime updated_at;
 
 
