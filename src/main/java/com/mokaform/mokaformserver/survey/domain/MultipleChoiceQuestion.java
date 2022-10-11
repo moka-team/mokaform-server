@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.survey.domain;
 
+import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
 import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Table(name = "multiple_choice_question")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class MultipleChoiceQuestion {
+public class MultipleChoiceQuestion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
