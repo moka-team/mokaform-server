@@ -18,7 +18,7 @@ public class SurveyController {
         this.createSurveyService = createSurveyService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse> saveSurvey(@RequestBody @Valid SurveySaveRequest request) {
         createSurveyService.saveSurvey(request);
 

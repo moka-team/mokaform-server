@@ -1,5 +1,7 @@
 package com.mokaform.mokaformserver.survey.service;
 
+import com.mokaform.mokaformserver.common.exception.ApiException;
+import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.QuestionTmp;
 import com.mokaform.mokaformserver.survey.domain.Survey;
@@ -7,56 +9,62 @@ import com.mokaform.mokaformserver.survey.dto.request.MCQuestionSaveRequest;
 import com.mokaform.mokaformserver.survey.dto.request.QuestionSaveRequest;
 import com.mokaform.mokaformserver.survey.dto.request.SurveySaveRequest;
 import com.mokaform.mokaformserver.survey.repository.MCQuestionRepository;
-import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
+import com.mokaform.mokaformserver.survey.repository.QuestionTmpRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CreateSurveyService {
     private final SurveyRepository surveyRepository;
-    private final QuestionRepository questionRepository;
+    private final QuestionTmpRepository questionTmpRepository;
     private final MCQuestionRepository mcQuestionRepository;
 
-    Survey survey;
-    QuestionTmp questionTmp;
-
-    public CreateSurveyService(SurveyRepository surveyRepository, QuestionRepository questionRepository, MCQuestionRepository mcQuestionRepository) {
+    public CreateSurveyService(SurveyRepository surveyRepository, QuestionTmpRepository questionTmpRepository, MCQuestionRepository mcQuestionRepository) {
         this.surveyRepository = surveyRepository;
-        this.questionRepository = questionRepository;
+        this.questionTmpRepository = questionTmpRepository;
         this.mcQuestionRepository = mcQuestionRepository;
     }
 
-    public void saveSurvey(SurveySaveRequest request) {
-        survey = Survey.builder()
-                .surveyor_id(request.getSurveyor_id())
+    public Long saveSurvey(SurveySaveRequest request) {
+        Survey survey = Survey.builder()
+                .surveyorId(request.getSurveyorId())
                 .title(request.getTitle())
-                .is_anonymous(request.getIs_anonymous())
-                .is_public(request.getIs_public())
-                .is_deleted(request.getIs_deleted())
-                .sharing_key(request.getSharing_key())
+                .isAnonymous(request.getIsAnonymous())
+                .isPublic(request.getIsPublic())
+                .sharingKey(request.getSharingKey())
                 .build();
 
-        surveyRepository.save(survey);
+        Survey savedSurvey = surveyRepository.save(survey);
+
+        return savedSurvey.getSurveyId();
     }
 
-    public void saveQuestionTmp(QuestionSaveRequest request) {
-        questionTmp = QuestionTmp.builder()
+    public Long saveQuestionTmp(QuestionSaveRequest request) {
+        Survey survey = surveyRepository.findById(request.getSurveyId())
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        QuestionTmp questionTmp = QuestionTmp.builder()
                 .survey(survey)
                 .title(request.getTitle())
                 .index(request.getIndex())
                 .type(request.getType())
-                .is_multi_answer(request.getIs_multi_answer())
+                .isMultiAnswer(request.getIsMultiAnswer())
                 .build();
 
-        questionRepository.save(questionTmp);
+        QuestionTmp saveQuestionTmp = questionTmpRepository.save(questionTmp);
+
+        return saveQuestionTmp.getQuestionId();
     }
 
     public void saveMCQuestion(MCQuestionSaveRequest request) {
+        QuestionTmp questionTmp = questionTmpRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
         MultipleChoiceQuestion multipleChoiceQuestion = MultipleChoiceQuestion.builder()
                 .questionTmp(questionTmp)
-                .multi_question_content(request.getMulti_question_content())
-                .multi_question_index(request.getMulti_question_index())
-                .multi_question_type(request.getMulti_question_type())
+                .multiQuestionContent(request.getMultiQuestionContent())
+                .multiQuestionIndex(request.getMultiQuestionIndex())
+                .multiQuestionType(request.getMultiQuestionType())
                 .build();
 
         mcQuestionRepository.save(multipleChoiceQuestion);

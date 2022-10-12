@@ -19,13 +19,17 @@ public class QuestionSaveRequest {
     private QuestionType type;
 
     @NotNull
-    private Boolean is_multi_answer;
+    private Boolean isMultiAnswer;
+
+    @NotNull
+    private Long surveyId;
 
     @Builder
-    public QuestionSaveRequest(String title, Long index, QuestionType type, Boolean is_multi_answer) {
+    public QuestionSaveRequest(String title, Long index, QuestionType type, Boolean isMultiAnswer, Long surveyId) {
         this.title = title;
         this.index = index;
         this.type = type;
-        this.is_multi_answer = is_multi_answer;
+        this.isMultiAnswer = isMultiAnswer;
+        this.surveyId = surveyId;
     }
 }

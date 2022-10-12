@@ -19,52 +19,45 @@ public class Survey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "survey_id", length = 320)
-    private Long survey_id;
+    private Long surveyId;
 
+    // TODO: Users 테이블이랑 연관 관계 매핑
     @Column(name = "surveyor_id", nullable = false, length = 320)
-    private Long surveyor_id;
+    private Long surveyorId;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
 
     @Column(name = "is_anonymous", nullable = false)
-    private Boolean is_anonymous;
+    private Boolean isAnonymous;
 
     @Column(name = "is_public", nullable = false)
-    private Boolean is_public;
+    private Boolean isPublic;
 
     @Column(name = "sharing_key", nullable = false, length = 20)
-    private String sharing_key;
+    private String sharingKey;
 
     @Column(name = "is_deleted", nullable = false)
-    private Boolean is_deleted;
+    private Boolean isDeleted;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime updated_at;
 
     @Builder
-    public Survey(Long surveyor_id, String title,
-                    Boolean is_anonymous, Boolean is_public,
-                  Boolean is_deleted, String sharing_key) {
-        this.surveyor_id = surveyor_id;
+    public Survey(Long surveyorId, String title,
+                    Boolean isAnonymous, Boolean isPublic, String sharingKey) {
+        this.surveyorId = surveyorId;
         this.title = title;
-        this.start_date = LocalDateTime.now();
-        this.end_date = LocalDateTime.now();
-        this.is_anonymous = is_anonymous;
-        this.is_public = is_public;
-        this.sharing_key = sharing_key;
-        this.is_deleted = is_deleted;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
-
+        //TODO: startDate, endDate 제대로 받아오기
+        this.startDate = LocalDateTime.now();
+        this.endDate = LocalDateTime.now();
+        this.isAnonymous = isAnonymous;
+        this.isPublic = isPublic;
+        this.sharingKey = sharingKey;
+        this.isDeleted = false;
     }
 }

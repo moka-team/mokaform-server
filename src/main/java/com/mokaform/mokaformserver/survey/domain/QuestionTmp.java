@@ -18,7 +18,7 @@ public class QuestionTmp extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name = "question_id")
-    private Long id;
+    private Long questionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id", referencedColumnName = "survey_id")
@@ -34,23 +34,15 @@ public class QuestionTmp extends BaseEntity {
     private QuestionType type;
 
     @Column(name = "is_multi_answer")
-    private Boolean is_multi_answer;
-
-    @Column(name = "created_at",insertable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @Column(name = "updated_at",insertable = false, updatable = false)
-    private LocalDateTime updated_at;
+    private Boolean isMultiAnswer;
 
 
     @Builder
-    public QuestionTmp(Survey survey, String title, Long index, QuestionType type, Boolean is_multi_answer){
+    public QuestionTmp(Survey survey, String title, Long index, QuestionType type, Boolean isMultiAnswer){
         this.survey = survey;
         this.title= title;
         this.index = index;
         this.type = type;
-        this.is_multi_answer = is_multi_answer;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
+        this.isMultiAnswer = isMultiAnswer;
     }
 }

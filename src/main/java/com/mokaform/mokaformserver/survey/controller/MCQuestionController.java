@@ -20,7 +20,7 @@ public class MCQuestionController {
         this.createSurveyService = createSurveyService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse> saveMCQuestion(@RequestBody @Valid MCQuestionSaveRequest request) {
         createSurveyService.saveMCQuestion(request);
 

@@ -13,34 +13,30 @@ import java.time.LocalDateTime;
 @Getter
 public class SurveySaveRequest {
     @NotNull
-    private Long surveyor_id;
+    private Long surveyorId;
 
     @NotNull
     private String title;
 
     @NotNull
-    private Boolean is_anonymous;
+    private Boolean isAnonymous;
 
     @NotNull
-    private Boolean is_public;
+    private Boolean isPublic;
 
     @NotNull
-    private String sharing_key;
-
-    @NotNull
-    private Boolean is_deleted;
+    private String sharingKey;
 
     @Builder
-    public SurveySaveRequest(Long surveyor_id, String title,
-                  Boolean is_anonymous, Boolean is_public, Boolean is_deleted,
-                  String sharing_key
+    public SurveySaveRequest(Long surveyorId, String title,
+                  Boolean isAnonymous, Boolean isPublic,
+                  String sharingKey
                   ) {
-        this.surveyor_id = surveyor_id;
+        this.surveyorId = surveyorId;
         this.title = title;
-        this.is_anonymous = is_anonymous;
-        this.is_public = is_public;
-        this.is_deleted = is_deleted;
-        this.sharing_key = sharing_key;
+        this.isAnonymous = isAnonymous;
+        this.isPublic = isPublic;
+        this.sharingKey = sharingKey;
 
     }
 

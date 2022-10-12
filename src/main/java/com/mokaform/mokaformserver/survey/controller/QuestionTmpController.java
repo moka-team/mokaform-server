@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/detail-survey")
+@RequestMapping("/api/v1/question")
 public class QuestionTmpController {
     private final CreateSurveyService createSurveyService;
 
@@ -20,7 +20,7 @@ public class QuestionTmpController {
         this.createSurveyService = createSurveyService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse> saveQuestionTmp(@RequestBody @Valid QuestionSaveRequest request) {
         createSurveyService.saveQuestionTmp(request);
 

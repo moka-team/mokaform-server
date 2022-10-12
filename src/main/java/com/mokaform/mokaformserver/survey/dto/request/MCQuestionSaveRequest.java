@@ -11,20 +11,24 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class MCQuestionSaveRequest {
     @NotNull
-    private MultiQuestionType multi_question_type;
+    private MultiQuestionType multiQuestionType;
 
     @NotNull
-    private String multi_question_content;
+    private String multiQuestionContent;
 
     @NotNull
-    private Integer multi_question_index;
+    private Integer multiQuestionIndex;
+
+    @NotNull
+    private Long questionId;
 
     @Builder
-    public MCQuestionSaveRequest(MultiQuestionType multi_question_type,
-                                 String multi_question_content, Integer multi_question_index) {
-        this.multi_question_type = multi_question_type;
-        this.multi_question_content = multi_question_content;
-        this.multi_question_index = multi_question_index;
+    public MCQuestionSaveRequest(MultiQuestionType multiQuestionType,
+                                 String multiQuestionContent, Integer multiQuestionIndex, Long questionId) {
+        this.multiQuestionType = multiQuestionType;
+        this.multiQuestionContent = multiQuestionContent;
+        this.multiQuestionIndex = multiQuestionIndex;
+        this.questionId = questionId;
     }
 
 }
