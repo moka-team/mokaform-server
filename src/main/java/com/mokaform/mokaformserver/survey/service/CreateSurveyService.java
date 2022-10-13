@@ -41,11 +41,11 @@ public class CreateSurveyService {
     }
 
     public Long saveQuestionTmp(QuestionSaveRequest request) {
-        Survey survey = surveyRepository.findById(request.getSurveyId())
-                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+//        Survey survey = surveyRepository.findById(request.getSurveyId())
+//                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         QuestionTmp questionTmp = QuestionTmp.builder()
-                .survey(survey)
+                .survey(request.getSurvey())
                 .title(request.getTitle())
                 .index(request.getIndex())
                 .type(request.getType())

@@ -20,7 +20,7 @@ public class QuestionTmp extends BaseEntity {
     @Column(name = "question_id")
     private Long questionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "survey_id", referencedColumnName = "survey_id")
     private Survey survey;
 
