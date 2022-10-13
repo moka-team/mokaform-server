@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,12 +50,12 @@ public class Survey extends BaseEntity {
 
 
     @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL)
-    private List<QuestionTmp> questionTmpList = new ArrayList<>();
+    private List<Question> questionTmpList = new ArrayList<>();
 
     @Builder
     public Survey(Long surveyor_id, String title,
-                    Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
-                  ) {
+                  Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
+    ) {
         this.surveyorId = surveyor_id;
         this.title = title;
         this.startDate = start_date;

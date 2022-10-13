@@ -2,14 +2,12 @@ package com.mokaform.mokaformserver.survey.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
 import com.mokaform.mokaformserver.survey.domain.enums.MultiQuestionType;
-import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "multiple_choice_question")
@@ -24,7 +22,7 @@ public class MultipleChoiceQuestion extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", referencedColumnName = "question_id", nullable = false)
-    private QuestionTmp questionTmp;
+    private Question questionTmp;
 
     @Column(name = "multi_question_type", nullable = false, length = 20)
     @Enumerated(value = EnumType.STRING)
@@ -37,7 +35,7 @@ public class MultipleChoiceQuestion extends BaseEntity {
     private Integer multiQuestionIndex;
 
     @Builder
-    public MultipleChoiceQuestion(QuestionTmp questionTmp,
+    public MultipleChoiceQuestion(Question questionTmp,
                                   MultiQuestionType multiQuestionType, String multiQuestionContent, Integer multiQuestionIndex) {
         this.questionTmp = questionTmp;
         this.multiQuestionType = multiQuestionType;
