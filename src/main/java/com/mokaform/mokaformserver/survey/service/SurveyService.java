@@ -5,69 +5,85 @@ import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
-import com.mokaform.mokaformserver.survey.dto.request.MCQuestionSaveRequest;
-import com.mokaform.mokaformserver.survey.dto.request.QuestionSaveRequest;
-import com.mokaform.mokaformserver.survey.dto.request.SurveySaveRequest;
+import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
+import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SurveyService {
     private final SurveyRepository surveyRepository;
-    private final QuestionRepository questionTmpRepository;
-    private final MultiChoiceQuestionRepository mcQuestionRepository;
+    private final QuestionRepository questionRepository;
+    private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
 
-    public SurveyService(SurveyRepository surveyRepository, QuestionRepository questionTmpRepository, MultiChoiceQuestionRepository mcQuestionRepository) {
+    public SurveyService(SurveyRepository surveyRepository,
+                         QuestionRepository questionRepository,
+                         MultiChoiceQuestionRepository multiChoiceQuestionRepository) {
         this.surveyRepository = surveyRepository;
-        this.questionTmpRepository = questionTmpRepository;
-        this.mcQuestionRepository = mcQuestionRepository;
+        this.questionRepository = questionRepository;
+        this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
     }
 
-    public Long saveSurvey(SurveySaveRequest request) {
-        Survey survey = Survey.builder()
-                .surveyor_id(request.getSurveyorId())
+    @Transactional
+    public SurveyCreateResponse createSurvey(SurveyCreateRequest request, User user) {
+        Survey savedSurvey = saveSurvey(Survey.builder()
+                .user(user)
                 .title(request.getTitle())
-                .is_anonymous(request.getIsAnonymous())
-                .is_public(request.getIsPublic())
-                .start_date(request.getStartDate())
-                .end_date(request.getEndDate())
-                .build();
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .isAnonymous(request.getIsAnonymous())
+                .isPublic(request.getIsPublic())
+                .build());
 
+        request.getQuestions()
+                .forEach(question -> {
+                    Question savedQuestion = saveQuestion(
+                            Question.builder()
+                                    .survey(savedSurvey)
+                                    .title(question.getTitle())
+                                    .index(question.getIndex())
+                                    .type(question.getType())
+                                    .isMultiAnswer(question.getIsMultipleAnswer())
+                                    .build()
+                    );
+                    if (question.getIsMultipleAnswer()) {
+                        SurveyCreateRequest.MultiQuestion multiQuestion = request.getMultiQuestions()
+                                .stream()
+                                .filter(m ->
+                                        m.getQuestionIndex() == question.getIndex())
+                                .findFirst()
+                                .orElseThrow(() ->
+                                        new ApiException(CommonErrorCode.INVALID_PARAMETER));
+
+                        saveMultiChoiceQuestion(
+                                MultipleChoiceQuestion.builder()
+                                        .question(savedQuestion)
+                                        .multiQuestionType(multiQuestion.getType())
+                                        .multiQuestionContent(multiQuestion.getContent())
+                                        .multiQuestionIndex(multiQuestion.getIndex())
+                                        .build());
+                    }
+                });
+
+        return new SurveyCreateResponse(savedSurvey.getSurveyId());
+    }
+
+    private Survey saveSurvey(Survey survey) {
         Survey savedSurvey = surveyRepository.save(survey);
-
-        return savedSurvey.getSurveyId();
+        return savedSurvey;
     }
 
-    public Long saveQuestionTmp(QuestionSaveRequest request) {
-//        Survey survey = surveyRepository.findById(request.getSurveyId())
-//                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        Question questionTmp = Question.builder()
-                .survey(request.getSurvey())
-                .title(request.getTitle())
-                .index(request.getIndex())
-                .type(request.getType())
-                .isMultiAnswer(request.getIsMultiAnswer())
-                .build();
-
-        Question saveQuestionTmp = questionTmpRepository.save(questionTmp);
-
-        return saveQuestionTmp.getQuestionId();
+    private Question saveQuestion(Question question) {
+        Question savedQuestion = questionRepository.save(question);
+        return savedQuestion;
     }
 
-    public void saveMCQuestion(MCQuestionSaveRequest request) {
-        Question questionTmp = questionTmpRepository.findById(request.getQuestionId())
-                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        MultipleChoiceQuestion multipleChoiceQuestion = MultipleChoiceQuestion.builder()
-                .questionTmp(questionTmp)
-                .multiQuestionContent(request.getMultiQuestionContent())
-                .multiQuestionIndex(request.getMultiQuestionIndex())
-                .multiQuestionType(request.getMultiQuestionType())
-                .build();
-
-        mcQuestionRepository.save(multipleChoiceQuestion);
+    private void saveMultiChoiceQuestion(MultipleChoiceQuestion multipleChoiceQuestion) {
+        multiChoiceQuestionRepository.save(multipleChoiceQuestion);
     }
+
 }
