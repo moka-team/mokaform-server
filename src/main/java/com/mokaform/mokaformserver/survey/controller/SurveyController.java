@@ -46,13 +46,4 @@ public class SurveyController {
                         new ApiException(CommonErrorCode.INVALID_PARAMETER));
     }
 
-//    @PostMapping("/create")
-//    public ResponseEntity<ApiResponse> saveSurvey(@RequestBody @Valid SurveySaveRequest request) {
-//        createSurveyService.saveSurvey(request);
-//
-//        return ResponseEntity.ok()
-//                .body(ApiResponse.builder()
-//                        .message("새로운 설문 생성이 성공하였습니다.")
-//                        .build());
-//    }
 }
