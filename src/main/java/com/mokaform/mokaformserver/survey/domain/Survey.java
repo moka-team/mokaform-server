@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "survey")
@@ -40,24 +43,28 @@ public class Survey extends BaseEntity {
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
 
-    @Column(name = "sharing_key", nullable = false, length = 20)
-    private String sharingKey;
+    @Column(name = "sharing_key", nullable = false, length = 36)
+    private String sharing_key;
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
 
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL)
+    private List<QuestionTmp> questionTmpList = new ArrayList<>();
+
     @Builder
-    public Survey(Long surveyorId, String title,
-                    Boolean isAnonymous, Boolean isPublic, String sharingKey) {
-        this.surveyorId = surveyorId;
+    public Survey(Long surveyor_id, String title,
+                    Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
+                  ) {
+        this.surveyor_id = surveyor_id;
         this.title = title;
-        //TODO: startDate, endDate 제대로 받아오기
-        this.startDate = LocalDateTime.now();
-        this.endDate = LocalDateTime.now();
-        this.isAnonymous = isAnonymous;
-        this.isPublic = isPublic;
-        this.sharingKey = sharingKey;
-        this.isDeleted = false;
+        this.startDate = start_date;
+        this.endDate = end_date;
+        this.is_anonymous = is_anonymous;
+        this.is_public = is_public;
+        this.sharing_key = UUID.randomUUID().toString();
+        this.is_deleted = false;
+
     }
 }

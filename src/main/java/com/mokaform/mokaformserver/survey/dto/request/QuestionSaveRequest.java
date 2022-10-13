@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.survey.dto.request;
 
+import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.Builder;
 import lombok.Getter;
