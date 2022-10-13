@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "survey")
@@ -30,10 +31,10 @@ public class Survey extends BaseEntity {
     private String title;
 
     @Column(name = "start_date", nullable = true)
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = true)
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
 
     @Column(name = "is_anonymous", nullable = false)
     private Boolean is_anonymous;
@@ -41,7 +42,7 @@ public class Survey extends BaseEntity {
     @Column(name = "is_public", nullable = false)
     private Boolean is_public;
 
-    @Column(name = "sharing_key", nullable = false, length = 20)
+    @Column(name = "sharing_key", nullable = false, length = 36)
     private String sharing_key;
 
     @Column(name = "is_deleted", nullable = false)
@@ -58,18 +59,16 @@ public class Survey extends BaseEntity {
 
     @Builder
     public Survey(Long surveyor_id, String title,
-                    Boolean is_anonymous, Boolean is_public,
-                  Boolean is_deleted, String sharing_key) {
+                    Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
+                  ) {
         this.surveyor_id = surveyor_id;
         this.title = title;
-        this.start_date = LocalDateTime.now();
-        this.end_date = LocalDateTime.now();
+        this.startDate = start_date;
+        this.endDate = end_date;
         this.is_anonymous = is_anonymous;
         this.is_public = is_public;
-        this.sharing_key = sharing_key;
-        this.is_deleted = is_deleted;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
+        this.sharing_key = UUID.randomUUID().toString();
+        this.is_deleted = false;
 
     }
 }

@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
@@ -25,23 +27,21 @@ public class SurveySaveRequest {
     private Boolean is_public;
 
     @NotNull
-    private String sharing_key;
+    private LocalDateTime startDate;
 
     @NotNull
-    private Boolean is_deleted;
+    private LocalDateTime endDate;
 
     @Builder
     public SurveySaveRequest(Long surveyor_id, String title,
-                  Boolean is_anonymous, Boolean is_public, Boolean is_deleted,
-                  String sharing_key
+                  Boolean is_anonymous, Boolean is_public, LocalDateTime endDate, LocalDateTime startDate
                   ) {
         this.surveyor_id = surveyor_id;
         this.title = title;
         this.is_anonymous = is_anonymous;
         this.is_public = is_public;
-        this.is_deleted = is_deleted;
-        this.sharing_key = sharing_key;
-
+        this.endDate = endDate;
+        this.startDate = startDate;
     }
 
 }

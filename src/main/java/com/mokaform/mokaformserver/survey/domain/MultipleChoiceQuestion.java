@@ -36,12 +36,6 @@ public class MultipleChoiceQuestion extends BaseEntity {
     @Column(name = "multi_question_index", nullable = false)
     private Integer multi_question_index;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime updated_at;
-
     @Builder
     public MultipleChoiceQuestion(Long question_id,
                                   MultiQuestionType multi_question_type, String multi_question_content, Integer multi_question_index) {
@@ -49,7 +43,5 @@ public class MultipleChoiceQuestion extends BaseEntity {
         this.multi_question_type = multi_question_type;
         this.multi_question_content = multi_question_content;
         this.multi_question_index = multi_question_index;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
     }
 }
