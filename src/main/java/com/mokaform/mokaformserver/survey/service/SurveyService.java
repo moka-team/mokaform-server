@@ -1,7 +1,5 @@
 package com.mokaform.mokaformserver.survey.service;
 
-import com.mokaform.mokaformserver.common.exception.ApiException;
-import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
@@ -51,21 +49,19 @@ public class SurveyService {
                                     .build()
                     );
                     if (question.getIsMultipleAnswer()) {
-                        SurveyCreateRequest.MultiQuestion multiQuestion = request.getMultiQuestions()
+                        request.getMultiQuestions()
                                 .stream()
                                 .filter(m ->
                                         m.getQuestionIndex() == question.getIndex())
-                                .findFirst()
-                                .orElseThrow(() ->
-                                        new ApiException(CommonErrorCode.INVALID_PARAMETER));
-
-                        saveMultiChoiceQuestion(
-                                MultipleChoiceQuestion.builder()
-                                        .question(savedQuestion)
-                                        .multiQuestionType(multiQuestion.getType())
-                                        .multiQuestionContent(multiQuestion.getContent())
-                                        .multiQuestionIndex(multiQuestion.getIndex())
-                                        .build());
+                                .forEach(m ->
+                                        saveMultiChoiceQuestion(
+                                                MultipleChoiceQuestion.builder()
+                                                        .question(savedQuestion)
+                                                        .multiQuestionType(m.getType())
+                                                        .multiQuestionContent(m.getContent())
+                                                        .multiQuestionIndex(m.getIndex())
+                                                        .build())
+                                );
                     }
                 });
 
