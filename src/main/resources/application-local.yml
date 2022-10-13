@@ -2,7 +2,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: Tldus56923!
+    password: root1234!
     url: jdbc:mysql://localhost:3306/mokaform
   jpa:
     show-sql: true
@@ -10,4 +10,4 @@ spring:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create

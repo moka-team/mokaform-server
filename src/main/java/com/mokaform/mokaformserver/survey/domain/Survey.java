@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "survey")
@@ -19,52 +22,49 @@ public class Survey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "survey_id", length = 320)
-    private Long survey_id;
+    private Long surveyId;
 
+    // TODO: Users 테이블이랑 연관 관계 매핑
     @Column(name = "surveyor_id", nullable = false, length = 320)
-    private Long surveyor_id;
+    private Long surveyorId;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
 
     @Column(name = "is_anonymous", nullable = false)
-    private Boolean is_anonymous;
+    private Boolean isAnonymous;
 
     @Column(name = "is_public", nullable = false)
-    private Boolean is_public;
+    private Boolean isPublic;
 
-    @Column(name = "sharing_key", nullable = false, length = 20)
+    @Column(name = "sharing_key", nullable = false, length = 36)
     private String sharing_key;
 
     @Column(name = "is_deleted", nullable = false)
-    private Boolean is_deleted;
+    private Boolean isDeleted;
 
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime created_at;
 
-    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime updated_at;
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL)
+    private List<QuestionTmp> questionTmpList = new ArrayList<>();
 
     @Builder
     public Survey(Long surveyor_id, String title,
-                    Boolean is_anonymous, Boolean is_public,
-                  Boolean is_deleted, String sharing_key) {
-        this.surveyor_id = surveyor_id;
+                    Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
+                  ) {
+        this.surveyorId = surveyor_id;
         this.title = title;
-        this.start_date = LocalDateTime.now();
-        this.end_date = LocalDateTime.now();
-        this.is_anonymous = is_anonymous;
-        this.is_public = is_public;
-        this.sharing_key = sharing_key;
-        this.is_deleted = is_deleted;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
+        this.startDate = start_date;
+        this.endDate = end_date;
+        this.isAnonymous = is_anonymous;
+        this.isPublic = is_public;
+        this.sharing_key = UUID.randomUUID().toString();
+        this.isDeleted = false;
 
     }
 }
