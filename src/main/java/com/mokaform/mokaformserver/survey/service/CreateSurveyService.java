@@ -27,11 +27,12 @@ public class CreateSurveyService {
 
     public Long saveSurvey(SurveySaveRequest request) {
         Survey survey = Survey.builder()
-                .surveyorId(request.getSurveyorId())
+                .surveyor_id(request.getSurveyorId())
                 .title(request.getTitle())
-                .isAnonymous(request.getIsAnonymous())
-                .isPublic(request.getIsPublic())
-                .sharingKey(request.getSharingKey())
+                .is_anonymous(request.getIsAnonymous())
+                .is_public(request.getIsPublic())
+                .start_date(request.getStartDate())
+                .end_date(request.getEndDate())
                 .build();
 
         Survey savedSurvey = surveyRepository.save(survey);
