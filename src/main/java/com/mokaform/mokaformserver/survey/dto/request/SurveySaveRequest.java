@@ -27,9 +27,6 @@ public class SurveySaveRequest {
     private Boolean isPublic;
 
     @NotNull
-    private String sharingKey;
-
-    @NotNull
     private LocalDateTime startDate;
 
     @NotNull
@@ -37,14 +34,12 @@ public class SurveySaveRequest {
 
     @Builder
     public SurveySaveRequest(Long surveyorId, String title,
-                  Boolean isAnonymous, Boolean isPublic,
-                  String sharingKey, LocalDateTime startDate, LocalDateTime endDate
+                  Boolean isAnonymous, Boolean isPublic, LocalDateTime startDate, LocalDateTime endDate
                   ) {
         this.surveyorId = surveyorId;
         this.title = title;
         this.isAnonymous = isAnonymous;
         this.isPublic = isPublic;
-        this.sharingKey = sharingKey;
         this.endDate = endDate;
         this.startDate = startDate;
 

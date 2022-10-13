@@ -57,14 +57,14 @@ public class Survey extends BaseEntity {
     public Survey(Long surveyor_id, String title,
                     Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
                   ) {
-        this.surveyor_id = surveyor_id;
+        this.surveyorId = surveyor_id;
         this.title = title;
         this.startDate = start_date;
         this.endDate = end_date;
-        this.is_anonymous = is_anonymous;
-        this.is_public = is_public;
+        this.isAnonymous = is_anonymous;
+        this.isPublic = is_public;
         this.sharing_key = UUID.randomUUID().toString();
-        this.is_deleted = false;
+        this.isDeleted = false;
 
     }
 }
