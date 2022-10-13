@@ -1,13 +1,14 @@
 package com.mokaform.mokaformserver.survey.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
+import com.mokaform.mokaformserver.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,21 +21,21 @@ public class Survey extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "survey_id", length = 320)
+    @Column(name = "survey_id")
     private Long surveyId;
 
-    // TODO: Users 테이블이랑 연관 관계 매핑
-    @Column(name = "surveyor_id", nullable = false, length = 320)
-    private Long surveyorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "surveyor_id", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Column(name = "is_anonymous", nullable = false)
     private Boolean isAnonymous;
@@ -48,22 +49,20 @@ public class Survey extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
-
-    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL)
-    private List<Question> questionTmpList = new ArrayList<>();
+    @OneToMany(mappedBy = "survey")
+    private List<Question> questions = new ArrayList<>();
 
     @Builder
-    public Survey(Long surveyor_id, String title,
-                  Boolean is_anonymous, Boolean is_public, LocalDateTime start_date, LocalDateTime end_date
-    ) {
-        this.surveyorId = surveyor_id;
+    public Survey(User user, String title,
+                  LocalDate startDate, LocalDate endDate,
+                  Boolean isAnonymous, Boolean isPublic) {
+        this.user = user;
         this.title = title;
-        this.startDate = start_date;
-        this.endDate = end_date;
-        this.isAnonymous = is_anonymous;
-        this.isPublic = is_public;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.isAnonymous = isAnonymous;
+        this.isPublic = isPublic;
         this.sharing_key = UUID.randomUUID().toString();
         this.isDeleted = false;
-
     }
 }
