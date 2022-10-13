@@ -36,11 +36,6 @@ public class QuestionTmp extends BaseEntity {
     @Column(name = "is_multi_answer")
     private Boolean is_multi_answer;
 
-    @Column(name = "created_at",insertable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @Column(name = "updated_at",insertable = false, updatable = false)
-    private LocalDateTime updated_at;
 
     @Builder
     public QuestionTmp(Survey survey, String title, Long index, QuestionType type, Boolean is_multi_answer){
@@ -49,7 +44,5 @@ public class QuestionTmp extends BaseEntity {
         this.index = index;
         this.type = type;
         this.is_multi_answer = is_multi_answer;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = LocalDateTime.now();
     }
 }
