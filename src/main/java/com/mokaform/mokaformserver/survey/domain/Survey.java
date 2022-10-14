@@ -6,12 +6,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "survey")
@@ -66,7 +66,7 @@ public class Survey extends BaseEntity {
         this.endDate = endDate;
         this.isAnonymous = isAnonymous;
         this.isPublic = isPublic;
-        this.sharing_key = UUID.randomUUID().toString();
+        this.sharing_key = RandomStringUtils.random(10, true, true);
         this.isDeleted = false;
     }
 }
