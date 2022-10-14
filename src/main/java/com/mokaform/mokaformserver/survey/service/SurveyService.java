@@ -31,6 +31,7 @@ public class SurveyService {
         Survey savedSurvey = saveSurvey(Survey.builder()
                 .user(user)
                 .title(request.getTitle())
+                .summary(request.getSummary())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .isAnonymous(request.getIsAnonymous())
