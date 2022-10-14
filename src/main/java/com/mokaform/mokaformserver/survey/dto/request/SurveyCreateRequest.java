@@ -19,6 +19,9 @@ public class SurveyCreateRequest {
     @NotBlank
     private String title;
 
+    @NotBlank
+    private String summary;
+
     @NotNull
     private Boolean isAnonymous;
 
@@ -38,11 +41,12 @@ public class SurveyCreateRequest {
     private List<MultiQuestion> multiQuestions;
 
     @Builder
-    public SurveyCreateRequest(String title, LocalDate startDate,
-                               LocalDate endDate, Boolean isAnonymous,
-                               Boolean isPublic, List<Question> questions,
-                               List<MultiQuestion> multiQuestions) {
+    public SurveyCreateRequest(String title, String summary,
+                               LocalDate startDate, LocalDate endDate,
+                               Boolean isAnonymous, Boolean isPublic,
+                               List<Question> questions, List<MultiQuestion> multiQuestions) {
         this.title = title;
+        this.summary = summary;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAnonymous = isAnonymous;

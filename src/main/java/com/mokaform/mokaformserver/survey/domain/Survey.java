@@ -31,6 +31,9 @@ public class Survey extends BaseEntity {
     @Column(name = "title", nullable = false, length = 50)
     private String title;
 
+    @Column(name = "summary", nullable = false)
+    private String summary;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -54,10 +57,11 @@ public class Survey extends BaseEntity {
 
     @Builder
     public Survey(User user, String title,
-                  LocalDate startDate, LocalDate endDate,
+                  String summary, LocalDate startDate, LocalDate endDate,
                   Boolean isAnonymous, Boolean isPublic) {
         this.user = user;
         this.title = title;
+        this.summary = summary;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAnonymous = isAnonymous;
