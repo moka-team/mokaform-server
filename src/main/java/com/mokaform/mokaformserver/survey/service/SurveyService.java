@@ -1,16 +1,22 @@
 package com.mokaform.mokaformserver.survey.service;
 
+import com.mokaform.mokaformserver.common.exception.ApiException;
+import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SurveyService {
@@ -69,6 +75,35 @@ public class SurveyService {
         return new SurveyCreateResponse(savedSurvey.getSurveyId());
     }
 
+    @Transactional(readOnly = true)
+    public SurveyDetailsResponse getSurveyDetailsById(Long surveyId) {
+        Survey survey = getSurveyById(surveyId);
+
+        return getSurveyDetails(survey);
+    }
+
+    @Transactional(readOnly = true)
+    public SurveyDetailsResponse getSurveyDetailsBySharingKey(String sharingKey) {
+        Survey survey = getSurveyBySharingKey(sharingKey);
+
+        return getSurveyDetails(survey);
+    }
+
+    private SurveyDetailsResponse getSurveyDetails(Survey survey) {
+        List<Question> questions = getQuestions(survey.getSurveyId());
+        ArrayList<MultipleChoiceQuestion> multiQuestions = questions.stream()
+                .filter(Question::getIsMultiAnswer)
+                .map(question ->
+                        getMultipleChoiceQuestions(question.getQuestionId()))
+                .collect(ArrayList::new, List::addAll, List::addAll);
+
+        return SurveyDetailsResponse.builder()
+                .survey(survey)
+                .questions(questions)
+                .multipleChoiceQuestions(multiQuestions)
+                .build();
+    }
+
     private Survey saveSurvey(Survey survey) {
         Survey savedSurvey = surveyRepository.save(survey);
         return savedSurvey;
@@ -81,6 +116,33 @@ public class SurveyService {
 
     private void saveMultiChoiceQuestion(MultipleChoiceQuestion multipleChoiceQuestion) {
         multiChoiceQuestionRepository.save(multipleChoiceQuestion);
+    }
+
+    private Survey getSurveyById(Long surveyId) {
+        return surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    private Survey getSurveyBySharingKey(String sharingKey) {
+        return surveyRepository.findBySharingKey(sharingKey)
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    private Question getQuestionById(Long questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    private List<Question> getQuestions(Long surveyId) {
+        Survey survey = getSurveyById(surveyId);
+
+        return questionRepository.findQuestionsBySurvey(survey);
+    }
+
+    private List<MultipleChoiceQuestion> getMultipleChoiceQuestions(Long questionId) {
+        Question question = getQuestionById(questionId);
+
+        return multiChoiceQuestionRepository.findMultipleChoiceQuestionsByQuestion(question);
     }
 
 }
