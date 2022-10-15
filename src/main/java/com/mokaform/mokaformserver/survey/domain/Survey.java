@@ -2,10 +2,7 @@ package com.mokaform.mokaformserver.survey.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
 import com.mokaform.mokaformserver.user.domain.User;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.*;
@@ -17,6 +14,7 @@ import java.util.List;
 @Table(name = "survey")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class Survey extends BaseEntity {
 
     @Id

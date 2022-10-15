@@ -3,6 +3,7 @@ package com.mokaform.mokaformserver.survey.controller;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
+import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
@@ -12,17 +13,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/survey")
 public class SurveyController {
     private final SurveyService surveyCreateService;
-
     private final UserRepository userRepository;
 
     public SurveyController(SurveyService surveyCreateService, UserRepository userRepository) {
         this.surveyCreateService = surveyCreateService;
         this.userRepository = userRepository;
+    }
+
+    @GetMapping
+    public @ResponseBody List<Survey> getSurvey(){
+
+        return surveyCreateService.getSurveys();
     }
 
     @PostMapping
@@ -40,6 +47,7 @@ public class SurveyController {
                         .data(response)
                         .build());
     }
+
 
     // TODO: 로그인 구현 후에 삭제
     private User getUser(Long userId) {

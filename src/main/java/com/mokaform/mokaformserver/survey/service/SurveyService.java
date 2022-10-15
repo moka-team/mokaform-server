@@ -12,18 +12,24 @@ import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
     private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
-
+    
     public SurveyService(SurveyRepository surveyRepository,
                          QuestionRepository questionRepository,
                          MultiChoiceQuestionRepository multiChoiceQuestionRepository) {
         this.surveyRepository = surveyRepository;
         this.questionRepository = questionRepository;
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
+    }
+
+    public List<Survey> getSurveys(){
+        return surveyRepository.findAll();
     }
 
     @Transactional
