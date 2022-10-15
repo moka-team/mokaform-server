@@ -45,6 +45,9 @@ dependencies {
 
     // swagger (SpringDoc)
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
+
+    // apache commons lang3
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
 }
 
 tasks.named('test') {
