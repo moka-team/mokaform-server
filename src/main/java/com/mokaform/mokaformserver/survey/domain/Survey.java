@@ -46,8 +46,8 @@ public class Survey extends BaseEntity {
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
 
-    @Column(name = "sharing_key", nullable = false, length = 36)
-    private String sharing_key;
+    @Column(name = "sharing_key", nullable = false, length = 10)
+    private String sharingKey;
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
@@ -66,7 +66,7 @@ public class Survey extends BaseEntity {
         this.endDate = endDate;
         this.isAnonymous = isAnonymous;
         this.isPublic = isPublic;
-        this.sharing_key = RandomStringUtils.random(10, true, true);
+        this.sharingKey = RandomStringUtils.random(10, true, true);
         this.isDeleted = false;
     }
 }
