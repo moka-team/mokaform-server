@@ -102,8 +102,8 @@ public class SurveyService {
         return getSurveyDetails(survey);
     }
 
-    public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable) {
-        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable);
+    public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable, Long userId) {
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable, userId);
         return new PageResponse<>(
                 surveyInfos.map(surveyInfo ->
                         new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));

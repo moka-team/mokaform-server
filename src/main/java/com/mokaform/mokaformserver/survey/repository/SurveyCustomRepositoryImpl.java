@@ -6,6 +6,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mokaform.mokaformserver.answer.domain.QAnswer.answer;
@@ -32,7 +34,7 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<SurveyInfoMapping> findSurveyInfos(Pageable pageable) {
+    public Page<SurveyInfoMapping> findSurveyInfos(Pageable pageable, Long userId) {
         checkPageable(pageable);
 
         List<SurveyInfoMapping> content = queryFactory
@@ -51,9 +53,8 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
                 .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
                 .where(
-                        survey.isPublic.isTrue(),
                         survey.isDeleted.isFalse(),
-                        filterOngoingSurvey())
+                        filterMySurvey(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .groupBy(survey.surveyId)
@@ -63,11 +64,20 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
         JPAQuery<Long> countQuery = queryFactory
                 .select(survey.countDistinct())
                 .from(survey)
-                .where(survey.isPublic.isTrue(),
+                .where(
                         survey.isDeleted.isFalse(),
-                        filterOngoingSurvey());
+                        filterMySurvey(userId));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    private BooleanExpression filterMySurvey(Long userId) {
+        if (Objects.isNull(userId)) {
+            return survey.isPublic.isTrue()
+                    .and(filterOngoingSurvey());
+        } else {
+            return survey.user.id.eq(userId);
+        }
     }
 
     private BooleanBuilder filterOngoingSurvey() {
