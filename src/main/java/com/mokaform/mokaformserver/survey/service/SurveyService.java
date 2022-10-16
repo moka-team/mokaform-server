@@ -104,7 +104,9 @@ public class SurveyService {
 
     public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable) {
         Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable);
-        return new PageResponse<>(surveyInfos.map(SurveyInfoResponse::new));
+        return new PageResponse<>(
+                surveyInfos.map(surveyInfo ->
+                        new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
     }
 
     private SurveyDetailsResponse getSurveyDetails(Survey survey) {
@@ -165,6 +167,12 @@ public class SurveyService {
         Question question = getQuestionById(questionId);
 
         return multiChoiceQuestionRepository.findMultipleChoiceQuestionsByQuestion(question);
+    }
+
+    private List<SurveyCategory> getSurveyCategories(Long surveyId) {
+        Survey survey = getSurveyById(surveyId);
+
+        return surveyCategoryRepository.findSurveyCategoriesBySurvey(survey);
     }
 
 }
