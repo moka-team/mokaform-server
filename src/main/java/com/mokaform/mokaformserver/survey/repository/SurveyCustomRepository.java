@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface SurveyCustomRepository {
 
-    Page<SurveyInfoMapping> findSurveyInfos(Pageable pageable);
+    Page<SurveyInfoMapping> findSurveyInfos(Pageable pageable, Long userId);
 }
