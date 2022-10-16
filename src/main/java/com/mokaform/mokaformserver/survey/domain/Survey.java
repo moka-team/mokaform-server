@@ -55,6 +55,9 @@ public class Survey extends BaseEntity {
     @OneToMany(mappedBy = "survey")
     private List<Question> questions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "survey")
+    private List<SurveyCategory> categories = new ArrayList<>();
+
     @Builder
     public Survey(User user, String title,
                   String summary, LocalDate startDate, LocalDate endDate,

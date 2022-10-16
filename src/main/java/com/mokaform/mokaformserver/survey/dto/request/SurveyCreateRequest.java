@@ -1,6 +1,7 @@
 package com.mokaform.mokaformserver.survey.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.survey.domain.enums.MultiQuestionType;
 import com.mokaform.mokaformserver.survey.domain.enums.QuestionType;
 import lombok.Builder;
@@ -35,6 +36,8 @@ public class SurveyCreateRequest {
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
+    
+    private List<Category> categories;
 
     private List<Question> questions;
 
@@ -44,13 +47,15 @@ public class SurveyCreateRequest {
     public SurveyCreateRequest(String title, String summary,
                                LocalDate startDate, LocalDate endDate,
                                Boolean isAnonymous, Boolean isPublic,
-                               List<Question> questions, List<MultiQuestion> multiQuestions) {
+                               List<Category> categories, List<Question> questions,
+                               List<MultiQuestion> multiQuestions) {
         this.title = title;
         this.summary = summary;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isAnonymous = isAnonymous;
         this.isPublic = isPublic;
+        this.categories = categories;
         this.questions = questions;
         this.multiQuestions = multiQuestions;
     }

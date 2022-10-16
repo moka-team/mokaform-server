@@ -6,6 +6,7 @@ import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
+import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
@@ -13,6 +14,7 @@ import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
+import com.mokaform.mokaformserver.survey.repository.SurveyCategoryRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.data.domain.Page;
@@ -28,13 +30,16 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
     private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
+    private final SurveyCategoryRepository surveyCategoryRepository;
 
     public SurveyService(SurveyRepository surveyRepository,
                          QuestionRepository questionRepository,
-                         MultiChoiceQuestionRepository multiChoiceQuestionRepository) {
+                         MultiChoiceQuestionRepository multiChoiceQuestionRepository,
+                         SurveyCategoryRepository surveyCategoryRepository) {
         this.surveyRepository = surveyRepository;
         this.questionRepository = questionRepository;
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
+        this.surveyCategoryRepository = surveyCategoryRepository;
     }
 
     @Transactional
@@ -48,6 +53,9 @@ public class SurveyService {
                 .isAnonymous(request.getIsAnonymous())
                 .isPublic(request.getIsPublic())
                 .build());
+
+        request.getCategories().forEach(category ->
+                saveSurveyCategory(new SurveyCategory(category, savedSurvey)));
 
         request.getQuestions()
                 .forEach(question -> {
@@ -126,6 +134,10 @@ public class SurveyService {
 
     private void saveMultiChoiceQuestion(MultipleChoiceQuestion multipleChoiceQuestion) {
         multiChoiceQuestionRepository.save(multipleChoiceQuestion);
+    }
+
+    private void saveSurveyCategory(SurveyCategory surveyCategory) {
+        surveyCategoryRepository.save(surveyCategory);
     }
 
     private Survey getSurveyById(Long surveyId) {
