@@ -72,7 +72,7 @@ public class SurveyController {
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
-        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable);
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, null);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
