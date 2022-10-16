@@ -10,6 +10,7 @@ import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
@@ -107,6 +108,13 @@ public class SurveyService {
         return new PageResponse<>(
                 surveyInfos.map(surveyInfo ->
                         new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
+    }
+
+    @Transactional
+    public SurveyDeleteResponse deleteSurvey(Long surveyId) {
+        Survey survey = getSurveyById(surveyId);
+        survey.updateIsDeleted(true);
+        return new SurveyDeleteResponse(survey.getSurveyId());
     }
 
     private SurveyDetailsResponse getSurveyDetails(Survey survey) {
