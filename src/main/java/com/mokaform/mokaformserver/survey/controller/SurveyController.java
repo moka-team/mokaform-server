@@ -6,6 +6,7 @@ import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
@@ -76,6 +77,17 @@ public class SurveyController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("설문 다건 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    @DeleteMapping("/{surveyId}")
+    public ResponseEntity<ApiResponse> removeSurvey(@PathVariable(value = "surveyId") Long surveyId) {
+        SurveyDeleteResponse response = surveyService.deleteSurvey(surveyId);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("설문 삭제가 성공하였습니다.")
                         .data(response)
                         .build());
     }
