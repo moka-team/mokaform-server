@@ -1,10 +1,14 @@
 package com.mokaform.mokaformserver.survey.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
+import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -23,7 +27,9 @@ public class SurveyInfoResponse {
 
     private final Long surveyeeCount;
 
-    public SurveyInfoResponse(SurveyInfoMapping surveyInfoMapping) {
+    private final List<Category> surveyCategories;
+
+    public SurveyInfoResponse(SurveyInfoMapping surveyInfoMapping, List<SurveyCategory> surveyCategory) {
         this.surveyId = surveyInfoMapping.getSurveyId();
         this.title = surveyInfoMapping.getTitle();
         this.summary = surveyInfoMapping.getSummary();
@@ -33,5 +39,9 @@ public class SurveyInfoResponse {
         this.isPublic = surveyInfoMapping.getIsPublic();
         this.sharingKey = surveyInfoMapping.getSharingKey();
         this.surveyeeCount = surveyInfoMapping.getSurveyeeCount();
+        this.surveyCategories = surveyCategory
+                .stream()
+                .map(SurveyCategory::getCategory)
+                .collect(Collectors.toList());
     }
 }
