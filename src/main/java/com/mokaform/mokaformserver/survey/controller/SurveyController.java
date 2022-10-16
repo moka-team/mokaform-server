@@ -3,17 +3,23 @@ package com.mokaform.mokaformserver.survey.controller;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
+import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.domain.User;
 import com.mokaform.mokaformserver.user.repository.UserRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Objects;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequestMapping("/api/v1/survey")
@@ -59,6 +65,17 @@ public class SurveyController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("설문 상세 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("설문 다건 조회가 성공하였습니다.")
                         .data(response)
                         .build());
     }
