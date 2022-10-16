@@ -72,4 +72,8 @@ public class Survey extends BaseEntity {
         this.sharingKey = RandomStringUtils.random(10, true, true);
         this.isDeleted = false;
     }
+
+    public void updateIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }
