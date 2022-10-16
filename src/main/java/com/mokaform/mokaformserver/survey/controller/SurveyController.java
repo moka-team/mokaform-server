@@ -69,9 +69,12 @@ public class SurveyController {
                         .build());
     }
 
+    // TODO: 로그인 구현 후에 userId 삭제
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
-        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable);
+    public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                      @RequestParam(required = false) Long userId) {
+
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, userId);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
