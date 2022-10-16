@@ -2,18 +2,23 @@ package com.mokaform.mokaformserver.survey.service;
 
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
+import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyCategoryRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,6 +100,11 @@ public class SurveyService {
         Survey survey = getSurveyBySharingKey(sharingKey);
 
         return getSurveyDetails(survey);
+    }
+
+    public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable) {
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable);
+        return new PageResponse<>(surveyInfos.map(SurveyInfoResponse::new));
     }
 
     private SurveyDetailsResponse getSurveyDetails(Survey survey) {
