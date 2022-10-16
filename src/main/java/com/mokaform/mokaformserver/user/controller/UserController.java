@@ -2,6 +2,7 @@ package com.mokaform.mokaformserver.user.controller;
 
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
+import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
@@ -46,6 +47,19 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("내가 작성한 설문 다건 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    // TODO: userId는 로그인 구현 후에 수정
+    @GetMapping("/my/submitted-surveys")
+    public ResponseEntity<ApiResponse> getSubmittedSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                               @RequestParam Long userId) {
+        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, userId);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("내가 참여한 설문 다건 조회가 성공하였습니다.")
                         .data(response)
                         .build());
     }
