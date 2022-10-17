@@ -10,11 +10,7 @@ import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
 import com.mokaform.mokaformserver.survey.dto.mapping.SubmittedSurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
-import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
+import com.mokaform.mokaformserver.survey.dto.response.*;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyCategoryRepository;
@@ -115,7 +111,8 @@ public class SurveyService {
     public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, Long userId) {
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, userId);
         return new PageResponse<>(
-                surveyInfos.map(SubmittedSurveyInfoResponse::new));
+                surveyInfos.map(submittedSurveyInfo ->
+                        new SubmittedSurveyInfoResponse(submittedSurveyInfo, getSurveyCategories(submittedSurveyInfo.getSurveyId()))));
     }
 
     @Transactional
