@@ -10,4 +10,6 @@ public interface SurveyCustomRepository {
     Page<SurveyInfoMapping> findSurveyInfos(Pageable pageable, Long userId);
 
     Page<SubmittedSurveyInfoMapping> findSubmittedSurveyInfos(Pageable pageable, Long userId);
+
+    Long countSurveyee(Long surveyId);
 }
