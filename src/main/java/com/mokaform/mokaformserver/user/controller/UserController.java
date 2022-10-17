@@ -1,5 +1,7 @@
 package com.mokaform.mokaformserver.user.controller;
 
+import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
+import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
@@ -24,10 +26,14 @@ public class UserController {
 
     private final UserService userService;
     private final SurveyService surveyService;
+    private final AnswerService answerService;
 
-    public UserController(UserService userService, SurveyService surveyService) {
+    public UserController(UserService userService,
+                          SurveyService surveyService,
+                          AnswerService answerService) {
         this.userService = userService;
         this.surveyService = surveyService;
+        this.answerService = answerService;
     }
 
     @PostMapping("/signup")
@@ -62,6 +68,19 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("내가 참여한 설문 다건 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    // TODO: userId는 로그인 구현 후에 수정
+    @GetMapping("/my/submitted-surveys/{surveyId}")
+    public ResponseEntity<ApiResponse> getSubmittedSurveyDetail(@PathVariable(value = "surveyId") Long surveyId,
+                                                                @RequestParam Long userId) {
+        AnswerDetailResponse response = answerService.getAnswerDetail(surveyId, userId);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("내가 참여한 설문 상세 조회가 성공하였습니다.")
                         .data(response)
                         .build());
     }
