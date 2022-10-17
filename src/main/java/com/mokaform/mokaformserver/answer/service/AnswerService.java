@@ -5,6 +5,9 @@ import com.mokaform.mokaformserver.answer.domain.EssayAnswer;
 import com.mokaform.mokaformserver.answer.domain.MultipleChoiceAnswer;
 import com.mokaform.mokaformserver.answer.domain.OXAnswer;
 import com.mokaform.mokaformserver.answer.dto.mapping.AnswerInfoMapping;
+import com.mokaform.mokaformserver.answer.dto.mapping.EssayAnswerStatsMapping;
+import com.mokaform.mokaformserver.answer.dto.mapping.MultipleChoiceAnswerStatsMapping;
+import com.mokaform.mokaformserver.answer.dto.mapping.OXAnswerStatsMapping;
 import com.mokaform.mokaformserver.answer.dto.request.AnswerCreateRequest;
 import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
 import com.mokaform.mokaformserver.answer.repository.AnswerRepository;
@@ -15,15 +18,14 @@ import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
+import com.mokaform.mokaformserver.survey.dto.response.AnswerStatsResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AnswerService {
@@ -123,6 +125,74 @@ public class AnswerService {
                 .essayAnswers(essayAnswers)
                 .multipleChoiceAnswers(multipleChoiceAnswers)
                 .oxAnswers(oxAnswers)
+                .build();
+    }
+
+    public AnswerStatsResponse getAnswerStats(Long surveyId) {
+        List<EssayAnswerStatsMapping> essayAnswers = answerRepository.findEssayAnswers(surveyId);
+        List<MultipleChoiceAnswerStatsMapping> multipleChoiceAnswers = answerRepository.findMultipleChoiceAnswers(surveyId);
+        List<OXAnswerStatsMapping> oxAnswers = answerRepository.findOxAnswers(surveyId);
+
+        Map<Long, List<String>> essayStats = new HashMap<>();
+        Map<Long, Map<Long, Long>> multipleChoiceStats = new HashMap<>();
+        Map<Long, Map<String, Long>> oxStats = new HashMap<>();
+        essayAnswers.forEach(essayAnswer -> {
+            if (essayStats.containsKey(essayAnswer.getQuestionId())) {
+                List<String> value = essayStats.get(essayAnswer.getQuestionId());
+                value.add(essayAnswer.getAnswerContent());
+                essayStats.replace(essayAnswer.getQuestionId(), value);
+            } else {
+                ArrayList<String> list = new ArrayList<>();
+                list.add(essayAnswer.getAnswerContent());
+                essayStats.put(essayAnswer.getQuestionId(), list);
+            }
+        });
+        multipleChoiceAnswers.forEach(multipleChoiceAnswer -> {
+            if (multipleChoiceStats.containsKey(multipleChoiceAnswer.getQuestionId())) {
+                Map<Long, Long> value = multipleChoiceStats.get(multipleChoiceAnswer.getQuestionId());
+                if (value.containsKey(multipleChoiceAnswer.getMultiQuestionId())) {
+                    value.replace(multipleChoiceAnswer.getMultiQuestionId(), value.get(multipleChoiceAnswer.getMultiQuestionId()) + 1L);
+                } else {
+                    value.put(multipleChoiceAnswer.getMultiQuestionId(), 1L);
+                }
+                multipleChoiceStats.replace(multipleChoiceAnswer.getQuestionId(), value);
+            } else {
+                Map<Long, Long> value = new HashMap<>();
+                value.put(multipleChoiceAnswer.getMultiQuestionId(), 1L);
+                multipleChoiceStats.put(multipleChoiceAnswer.getQuestionId(), value);
+            }
+        });
+        oxAnswers.forEach(oxAnswer -> {
+            if (oxStats.containsKey(oxAnswer.getQuestionId())) {
+                Map<String, Long> value = oxStats.get(oxAnswer.getQuestionId());
+                if (oxAnswer.getIsYes() == true) {
+                    if (value.containsKey("yes")) {
+                        value.replace("yes", value.get("yes") + 1L);
+                    } else {
+                        value.put("yes", 1L);
+                    }
+                } else {
+                    if (value.containsKey("no")) {
+                        value.replace("no", value.get("no") + 1L);
+                    } else {
+                        value.put("no", 1L);
+                    }
+                }
+            } else {
+                Map<String, Long> value = new HashMap<>();
+                if (oxAnswer.getIsYes() == true) {
+                    value.put("yes", 1L);
+                } else {
+                    value.put("no", 1L);
+                }
+                oxStats.put(oxAnswer.getQuestionId(), value);
+            }
+        });
+
+        return AnswerStatsResponse.builder()
+                .essayStats(essayStats)
+                .multipleChoiceStats(multipleChoiceStats)
+                .oxStats(oxStats)
                 .build();
     }
 
