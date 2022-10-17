@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
 import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.survey.dto.mapping.SubmittedSurveyInfoMapping;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -26,9 +27,14 @@ public class SubmittedSurveyInfoResponse {
     private final String sharingKey;
     private final Boolean isDeleted;
 
+    private final Long surveyeeCount;
+
     private final List<Category> surveyCategories;
 
-    public SubmittedSurveyInfoResponse(SubmittedSurveyInfoMapping surveyInfoMapping, List<SurveyCategory> surveyCategory) {
+    @Builder
+    public SubmittedSurveyInfoResponse(SubmittedSurveyInfoMapping surveyInfoMapping,
+                                       Long surveyeeCount,
+                                       List<SurveyCategory> surveyCategory) {
         this.surveyId = surveyInfoMapping.getSurveyId();
         this.title = surveyInfoMapping.getTitle();
         this.summary = surveyInfoMapping.getSummary();
@@ -38,6 +44,7 @@ public class SubmittedSurveyInfoResponse {
         this.isPublic = surveyInfoMapping.getIsPublic();
         this.sharingKey = surveyInfoMapping.getSharingKey();
         this.isDeleted = surveyInfoMapping.getIsDeleted();
+        this.surveyeeCount = surveyeeCount;
         this.surveyCategories = surveyCategory
                 .stream()
                 .map(SurveyCategory::getCategory)

@@ -32,6 +32,7 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
     private static final String PAGEABLE_MUST_NOT_BE_NULL = "The given pageable must not be null!";
     private static final String USER_ID_MUST_NOT_BE_NULL = "The given user id must not be null!";
+    private static final String SURVEY_ID_MUST_NOT_BE_NULL = "The given survey id must not be null!";
 
     private final JPAQueryFactory queryFactory;
 
@@ -110,6 +111,20 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Long countSurveyee(Long surveyId) {
+        checkSurveyId(surveyId);
+
+        return queryFactory
+                .select(answer.user.id.countDistinct())
+                .from(survey)
+                .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
+                .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
+                .where(
+                        survey.surveyId.eq(surveyId))
+                .fetchOne();
+    }
+
     private BooleanExpression filterMySurvey(Long userId) {
         if (Objects.isNull(userId)) {
             return survey.isPublic.isTrue()
@@ -131,6 +146,10 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
     private void checkUserId(Long userId) {
         Assert.notNull(userId, USER_ID_MUST_NOT_BE_NULL);
+    }
+
+    private void checkSurveyId(Long surveyId) {
+        Assert.notNull(surveyId, SURVEY_ID_MUST_NOT_BE_NULL);
     }
 
     private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
