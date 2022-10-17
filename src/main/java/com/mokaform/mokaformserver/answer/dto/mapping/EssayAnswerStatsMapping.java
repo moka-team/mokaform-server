@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class EssayAnswerStatsMapping {
 
-    private Long questionId;
+    private String title;
 
     private String answerContent;
 
-    public EssayAnswerStatsMapping(Long questionId, String answerContent) {
-        this.questionId = questionId;
+    public EssayAnswerStatsMapping(String title, String answerContent) {
+        this.title = title;
         this.answerContent = answerContent;
     }
 }
