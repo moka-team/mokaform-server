@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.survey.repository;
 
+import com.mokaform.mokaformserver.survey.dto.mapping.SubmittedSurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.repository.enums.SurveySortType;
 import com.querydsl.core.BooleanBuilder;
@@ -30,6 +31,7 @@ import static com.mokaform.mokaformserver.survey.domain.QSurvey.survey;
 public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
     private static final String PAGEABLE_MUST_NOT_BE_NULL = "The given pageable must not be null!";
+    private static final String USER_ID_MUST_NOT_BE_NULL = "The given user id must not be null!";
 
     private final JPAQueryFactory queryFactory;
 
@@ -71,6 +73,43 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Page<SubmittedSurveyInfoMapping> findSubmittedSurveyInfos(Pageable pageable, Long userId) {
+        checkPageable(pageable);
+        checkUserId(userId);
+
+        List<SubmittedSurveyInfoMapping> content = queryFactory
+                .select(
+                        Projections.fields(SubmittedSurveyInfoMapping.class,
+                                survey.surveyId,
+                                survey.title,
+                                survey.summary,
+                                survey.startDate,
+                                survey.endDate,
+                                survey.isAnonymous,
+                                survey.isPublic,
+                                survey.sharingKey,
+                                survey.isDeleted))
+                .from(answer)
+                .leftJoin(question).on(answer.question.questionId.eq(question.questionId))
+                .leftJoin(survey).on(question.survey.surveyId.eq(survey.surveyId))
+                .where(
+                        answer.user.id.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .groupBy(survey.surveyId)
+                .orderBy(getAllOrderSpecifiers(pageable).toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(survey.surveyId.countDistinct())
+                .from(survey)
+                .where(
+                        answer.user.id.eq(userId));
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
     private BooleanExpression filterMySurvey(Long userId) {
         if (Objects.isNull(userId)) {
             return survey.isPublic.isTrue()
@@ -88,6 +127,10 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
     private void checkPageable(Pageable pageable) {
         Assert.notNull(pageable, PAGEABLE_MUST_NOT_BE_NULL);
+    }
+
+    private void checkUserId(Long userId) {
+        Assert.notNull(userId, USER_ID_MUST_NOT_BE_NULL);
     }
 
     private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {
