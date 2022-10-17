@@ -88,7 +88,7 @@ public class SurveyService {
                     }
                 });
 
-        return new SurveyCreateResponse(savedSurvey.getSurveyId());
+        return new SurveyCreateResponse(savedSurvey.getSurveyId(), savedSurvey.getSharingKey());
     }
 
     @Transactional(readOnly = true)

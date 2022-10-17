@@ -10,8 +10,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class SurveyCreateResponse {
 
     private final Long surveyId;
-    
-    public SurveyCreateResponse(Long surveyId) {
+    private final String sharingKey;
+
+    public SurveyCreateResponse(Long surveyId, String sharingKey) {
         this.surveyId = surveyId;
+        this.sharingKey = sharingKey;
     }
 }
