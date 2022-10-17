@@ -4,6 +4,7 @@ import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
+import com.mokaform.mokaformserver.survey.dto.response.AnswerStatsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
@@ -93,6 +94,17 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("로그읜 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping("/my/surveys/{surveyId}/stats")
+    public ResponseEntity<ApiResponse> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId) {
+        AnswerStatsResponse response = answerService.getAnswerStats(surveyId);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("설문 통계 결과 조회 성공하였습니다.")
                         .data(response)
                         .build());
     }
