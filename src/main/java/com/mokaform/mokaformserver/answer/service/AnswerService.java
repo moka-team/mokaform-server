@@ -15,8 +15,10 @@ import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
+import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
+import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,18 +35,22 @@ public class AnswerService {
     private final OXAnswerRepository oxAnswerRepository;
     private final QuestionRepository questionRepository;
     private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
+    private final SurveyRepository surveyRepository;
 
-    public AnswerService(AnswerRepository answerRepository, EssayAnswerRepository essayAnswerRepository,
+    public AnswerService(AnswerRepository answerRepository,
+                         EssayAnswerRepository essayAnswerRepository,
                          MultipleChoiceAnswerRepository multipleChoiceAnswerRepository,
                          OXAnswerRepository oxAnswerRepository,
                          QuestionRepository questionRepository,
-                         MultiChoiceQuestionRepository multiChoiceQuestionRepository) {
+                         MultiChoiceQuestionRepository multiChoiceQuestionRepository,
+                         SurveyRepository surveyRepository) {
         this.answerRepository = answerRepository;
         this.essayAnswerRepository = essayAnswerRepository;
         this.multipleChoiceAnswerRepository = multipleChoiceAnswerRepository;
         this.oxAnswerRepository = oxAnswerRepository;
         this.questionRepository = questionRepository;
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
+        this.surveyRepository = surveyRepository;
     }
 
     @Transactional
@@ -102,8 +108,10 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public AnswerDetailResponse getAnswerDetail(Long surveyId, Long userId) {
-        List<AnswerInfoMapping> answerInfos = answerRepository.findAnswerInfos(surveyId, userId);
+    public AnswerDetailResponse getAnswerDetail(String sharingKey, Long userId) {
+        Survey survey = getSurveyBySharingKey(sharingKey);
+
+        List<AnswerInfoMapping> answerInfos = answerRepository.findAnswerInfos(survey.getSurveyId(), userId);
 
         List<EssayAnswer> essayAnswers = new ArrayList<>();
         List<MultipleChoiceAnswer> multipleChoiceAnswers = new ArrayList<>();
@@ -118,7 +126,7 @@ public class AnswerService {
         });
 
         return AnswerDetailResponse.builder()
-                .surveyId(surveyId)
+                .surveyId(survey.getSurveyId())
                 .surveyeeId(userId)
                 .essayAnswers(essayAnswers)
                 .multipleChoiceAnswers(multipleChoiceAnswers)
@@ -165,6 +173,11 @@ public class AnswerService {
 
     private Optional<OXAnswer> getOxAnswer(Long answerId) {
         return oxAnswerRepository.findByAnswerId(answerId);
+    }
+
+    private Survey getSurveyBySharingKey(String sharingKey) {
+        return surveyRepository.findBySharingKey(sharingKey)
+                .orElseThrow(() -> new ApiException(CommonErrorCode.INVALID_PARAMETER));
     }
 
 }

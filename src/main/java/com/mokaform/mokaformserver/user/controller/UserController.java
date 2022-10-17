@@ -73,10 +73,10 @@ public class UserController {
     }
 
     // TODO: userId는 로그인 구현 후에 수정
-    @GetMapping("/my/submitted-surveys/{surveyId}")
-    public ResponseEntity<ApiResponse> getSubmittedSurveyDetail(@PathVariable(value = "surveyId") Long surveyId,
+    @GetMapping("/my/submitted-surveys/{sharingKey}")
+    public ResponseEntity<ApiResponse> getSubmittedSurveyDetail(@PathVariable(value = "sharingKey") String sharingKey,
                                                                 @RequestParam Long userId) {
-        AnswerDetailResponse response = answerService.getAnswerDetail(surveyId, userId);
+        AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, userId);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
