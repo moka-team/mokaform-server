@@ -112,7 +112,11 @@ public class SurveyService {
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, userId);
         return new PageResponse<>(
                 surveyInfos.map(submittedSurveyInfo ->
-                        new SubmittedSurveyInfoResponse(submittedSurveyInfo, getSurveyCategories(submittedSurveyInfo.getSurveyId()))));
+                        SubmittedSurveyInfoResponse.builder()
+                                .surveyInfoMapping(submittedSurveyInfo)
+                                .surveyeeCount(surveyRepository.countSurveyee(submittedSurveyInfo.getSurveyId()))
+                                .surveyCategory(getSurveyCategories(submittedSurveyInfo.getSurveyId()))
+                                .build()));
     }
 
     @Transactional
