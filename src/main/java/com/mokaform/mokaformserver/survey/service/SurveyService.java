@@ -17,12 +17,15 @@ import com.mokaform.mokaformserver.survey.repository.SurveyCategoryRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.User;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SurveyService {
@@ -110,6 +113,29 @@ public class SurveyService {
 
     public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, Long userId) {
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, userId);
+
+        if ("surveyeeCount".equals(pageable.getSort().get().findFirst().get().getProperty())) {
+            Comparator<SubmittedSurveyInfoResponse> comparator = null;
+
+            if ("ASC".equals(pageable.getSort().get().findFirst().get().getDirection().name())) {
+                comparator = Comparator.comparing(SubmittedSurveyInfoResponse::getSurveyeeCount);
+            } else {
+                comparator = Comparator.comparing(SubmittedSurveyInfoResponse::getSurveyeeCount).reversed();
+            }
+
+            List<SubmittedSurveyInfoResponse> content = surveyInfos.stream()
+                    .map(submittedSurveyInfo ->
+                            SubmittedSurveyInfoResponse.builder()
+                                    .surveyInfoMapping(submittedSurveyInfo)
+                                    .surveyeeCount(surveyRepository.countSurveyee(submittedSurveyInfo.getSurveyId()))
+                                    .surveyCategory(getSurveyCategories(submittedSurveyInfo.getSurveyId()))
+                                    .build())
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+            Page<SubmittedSurveyInfoResponse> responsePage = new PageImpl<>(content, surveyInfos.getPageable(), surveyInfos.getTotalElements());
+            return new PageResponse<>(responsePage);
+        }
+
         return new PageResponse<>(
                 surveyInfos.map(submittedSurveyInfo ->
                         SubmittedSurveyInfoResponse.builder()
