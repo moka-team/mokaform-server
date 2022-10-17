@@ -21,4 +21,3 @@ spring:
   profiles:
     include:
       - springdoc
-      - local
