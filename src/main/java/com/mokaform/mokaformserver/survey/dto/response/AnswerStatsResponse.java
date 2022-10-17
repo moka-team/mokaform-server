@@ -13,14 +13,14 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Getter
 public class AnswerStatsResponse {
 
-    private final Map<Long, List<String>> essayStats;
-    private final Map<Long, Map<Long, Long>> multipleChoiceStats;
-    private final Map<Long, Map<String, Long>> oxStats;
+    private final Map<String, List<String>> essayStats;
+    private final Map<String, Map<String, Long>> multipleChoiceStats;
+    private final Map<String, Map<String, Long>> oxStats;
 
     @Builder
-    public AnswerStatsResponse(Map<Long, List<String>> essayStats,
-                               Map<Long, Map<Long, Long>> multipleChoiceStats,
-                               Map<Long, Map<String, Long>> oxStats) {
+    public AnswerStatsResponse(Map<String, List<String>> essayStats,
+                               Map<String, Map<String, Long>> multipleChoiceStats,
+                               Map<String, Map<String, Long>> oxStats) {
         this.essayStats = essayStats;
         this.multipleChoiceStats = multipleChoiceStats;
         this.oxStats = oxStats;

@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class MultipleChoiceAnswerStatsMapping {
 
-    private Long questionId;
+    private String title;
 
-    private Long multiQuestionId;
+    private String multiQuestionContent;
 
-    public MultipleChoiceAnswerStatsMapping(Long questionId, Long multiQuestionId) {
-        this.questionId = questionId;
-        this.multiQuestionId = multiQuestionId;
+    public MultipleChoiceAnswerStatsMapping(String title, String multiQuestionContent) {
+        this.title = title;
+        this.multiQuestionContent = multiQuestionContent;
     }
 }

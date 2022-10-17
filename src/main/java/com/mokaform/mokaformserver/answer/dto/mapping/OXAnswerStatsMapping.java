@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class OXAnswerStatsMapping {
 
-    private Long questionId;
+    private String title;
 
     private Boolean isYes;
 
-    public OXAnswerStatsMapping(Long questionId, Boolean isYes) {
-        this.questionId = questionId;
+    public OXAnswerStatsMapping(String title, Boolean isYes) {
+        this.title = title;
         this.isYes = isYes;
     }
 }

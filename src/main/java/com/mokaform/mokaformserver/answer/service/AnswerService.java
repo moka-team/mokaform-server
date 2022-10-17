@@ -141,38 +141,38 @@ public class AnswerService {
         List<MultipleChoiceAnswerStatsMapping> multipleChoiceAnswers = answerRepository.findMultipleChoiceAnswers(surveyId);
         List<OXAnswerStatsMapping> oxAnswers = answerRepository.findOxAnswers(surveyId);
 
-        Map<Long, List<String>> essayStats = new HashMap<>();
-        Map<Long, Map<Long, Long>> multipleChoiceStats = new HashMap<>();
-        Map<Long, Map<String, Long>> oxStats = new HashMap<>();
+        Map<String, List<String>> essayStats = new HashMap<>();
+        Map<String, Map<String, Long>> multipleChoiceStats = new HashMap<>();
+        Map<String, Map<String, Long>> oxStats = new HashMap<>();
         essayAnswers.forEach(essayAnswer -> {
-            if (essayStats.containsKey(essayAnswer.getQuestionId())) {
-                List<String> value = essayStats.get(essayAnswer.getQuestionId());
+            if (essayStats.containsKey(essayAnswer.getTitle())) {
+                List<String> value = essayStats.get(essayAnswer.getTitle());
                 value.add(essayAnswer.getAnswerContent());
-                essayStats.replace(essayAnswer.getQuestionId(), value);
+                essayStats.replace(essayAnswer.getTitle(), value);
             } else {
                 ArrayList<String> list = new ArrayList<>();
                 list.add(essayAnswer.getAnswerContent());
-                essayStats.put(essayAnswer.getQuestionId(), list);
+                essayStats.put(essayAnswer.getTitle(), list);
             }
         });
         multipleChoiceAnswers.forEach(multipleChoiceAnswer -> {
-            if (multipleChoiceStats.containsKey(multipleChoiceAnswer.getQuestionId())) {
-                Map<Long, Long> value = multipleChoiceStats.get(multipleChoiceAnswer.getQuestionId());
-                if (value.containsKey(multipleChoiceAnswer.getMultiQuestionId())) {
-                    value.replace(multipleChoiceAnswer.getMultiQuestionId(), value.get(multipleChoiceAnswer.getMultiQuestionId()) + 1L);
+            if (multipleChoiceStats.containsKey(multipleChoiceAnswer.getTitle())) {
+                Map<String, Long> value = multipleChoiceStats.get(multipleChoiceAnswer.getTitle());
+                if (value.containsKey(multipleChoiceAnswer.getMultiQuestionContent())) {
+                    value.replace(multipleChoiceAnswer.getMultiQuestionContent(), value.get(multipleChoiceAnswer.getMultiQuestionContent()) + 1L);
                 } else {
-                    value.put(multipleChoiceAnswer.getMultiQuestionId(), 1L);
+                    value.put(multipleChoiceAnswer.getMultiQuestionContent(), 1L);
                 }
-                multipleChoiceStats.replace(multipleChoiceAnswer.getQuestionId(), value);
+                multipleChoiceStats.replace(multipleChoiceAnswer.getTitle(), value);
             } else {
-                Map<Long, Long> value = new HashMap<>();
-                value.put(multipleChoiceAnswer.getMultiQuestionId(), 1L);
-                multipleChoiceStats.put(multipleChoiceAnswer.getQuestionId(), value);
+                Map<String, Long> value = new HashMap<>();
+                value.put(multipleChoiceAnswer.getMultiQuestionContent(), 1L);
+                multipleChoiceStats.put(multipleChoiceAnswer.getTitle(), value);
             }
         });
         oxAnswers.forEach(oxAnswer -> {
-            if (oxStats.containsKey(oxAnswer.getQuestionId())) {
-                Map<String, Long> value = oxStats.get(oxAnswer.getQuestionId());
+            if (oxStats.containsKey(oxAnswer.getTitle())) {
+                Map<String, Long> value = oxStats.get(oxAnswer.getTitle());
                 if (oxAnswer.getIsYes() == true) {
                     if (value.containsKey("yes")) {
                         value.replace("yes", value.get("yes") + 1L);
@@ -193,7 +193,7 @@ public class AnswerService {
                 } else {
                     value.put("no", 1L);
                 }
-                oxStats.put(oxAnswer.getQuestionId(), value);
+                oxStats.put(oxAnswer.getTitle(), value);
             }
         });
 

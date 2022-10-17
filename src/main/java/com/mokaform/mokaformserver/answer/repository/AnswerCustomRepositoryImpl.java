@@ -52,7 +52,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(EssayAnswerStatsMapping.class,
-                                answer.question.questionId,
+                                question.title,
                                 essayAnswer.answerContent))
                 .from(survey)
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
@@ -71,8 +71,8 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(MultipleChoiceAnswerStatsMapping.class,
-                                answer.question.questionId,
-                                multipleChoiceAnswer.multipleChoiceQuestion.multiQuestionId))
+                                question.title,
+                                multipleChoiceAnswer.multipleChoiceQuestion.multiQuestionContent))
                 .from(survey)
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
                 .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
@@ -90,7 +90,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(OXAnswerStatsMapping.class,
-                                answer.question.questionId,
+                                question.title,
                                 oXAnswer.isYes))
                 .from(survey)
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
