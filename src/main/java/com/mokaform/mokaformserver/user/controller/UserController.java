@@ -4,7 +4,9 @@ import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
+import com.mokaform.mokaformserver.user.dto.request.LoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
+import com.mokaform.mokaformserver.user.dto.response.LoginResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -46,6 +48,18 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("내가 작성한 설문 다건 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    // TODO: 로그인 구현 후에 수정
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
+        LoginResponse response = userService.getUser(request);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("로그읜 성공하였습니다.")
                         .data(response)
                         .build());
     }
