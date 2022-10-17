@@ -20,6 +20,7 @@ public class SurveyResponse {
     private final Boolean isAnonymous;
     private final Boolean isPublic;
     private final String sharing_key;
+    private final Boolean isDeleted;
 
     private final int questionCount;
 
@@ -33,5 +34,6 @@ public class SurveyResponse {
         this.isPublic = survey.getIsPublic();
         this.sharing_key = survey.getSharingKey();
         this.questionCount = survey.getQuestions().size();
+        this.isDeleted = survey.getIsDeleted();
     }
 }
