@@ -23,7 +23,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@CrossOrigin(origins="https://feat-deploy--papaya-horse-fada9b.netlify.app/")
 public class UserController {
 
     private final UserService userService;
