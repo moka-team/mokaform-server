@@ -12,7 +12,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:3000",
                         "https://mokaform-client-q6w1.vercel.app",
-                        "https://startling-melba-4ca4af.netlify.app")
+                        "https://startling-melba-4ca4af.netlify.app",
+                        "https://feat-deploy--papaya-horse-fada9b.netlify.app")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);
