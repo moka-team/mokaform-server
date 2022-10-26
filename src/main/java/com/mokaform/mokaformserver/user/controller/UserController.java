@@ -10,6 +10,7 @@ import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.dto.request.LoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
+import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LoginResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.springframework.data.domain.Pageable;
@@ -105,6 +106,17 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("설문 통계 결과 조회 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
+    @GetMapping("/check-email-duplication")
+    public ResponseEntity<ApiResponse> checkEmailDuplication(@RequestParam(value = "email") String email) {
+        DuplicateValidationResponse response = userService.checkEmailDuplication(email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("이메일 중복 확인 성공하였습니다.")
                         .data(response)
                         .build());
     }

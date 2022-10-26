@@ -10,6 +10,7 @@ import com.mokaform.mokaformserver.user.domain.enums.Gender;
 import com.mokaform.mokaformserver.user.domain.enums.Job;
 import com.mokaform.mokaformserver.user.dto.request.LoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
+import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LoginResponse;
 import com.mokaform.mokaformserver.user.repository.PreferenceCategoryRepository;
 import com.mokaform.mokaformserver.user.repository.UserRepository;
@@ -54,6 +55,12 @@ public class UserService {
                 .orElseThrow(() ->
                         new ApiException(UserErrorCode.USER_NOT_FOUND));
         return new LoginResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public DuplicateValidationResponse checkEmailDuplication(String email) {
+        Boolean isDuplicated = userRepository.existsByEmail(email);
+        return new DuplicateValidationResponse(isDuplicated);
     }
 
     private void createPreferenceCategory(User user, String categoryValue) {
