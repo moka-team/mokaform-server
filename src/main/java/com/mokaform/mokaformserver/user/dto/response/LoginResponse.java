@@ -25,7 +25,7 @@ public class LoginResponse {
 
     private Job job;
 
-    private String profile_image;
+    private String profileImage;
 
     public LoginResponse(User user) {
         this.id = user.getId();
@@ -34,6 +34,6 @@ public class LoginResponse {
         this.ageGroup = user.getAgeGroup();
         this.gender = user.getGender();
         this.job = user.getJob();
-        this.profile_image = user.getProfile_image();
+        this.profileImage = user.getProfileImage();
     }
 }
