@@ -63,6 +63,12 @@ public class UserService {
         return new DuplicateValidationResponse(isDuplicated);
     }
 
+    @Transactional(readOnly = true)
+    public DuplicateValidationResponse checkNicknameDuplication(String nickname) {
+        Boolean isDuplicated = userRepository.existsByNickname(nickname);
+        return new DuplicateValidationResponse(isDuplicated);
+    }
+
     private void createPreferenceCategory(User user, String categoryValue) {
         PreferenceCategory preferenceCategory = new PreferenceCategory(user, Category.valueOf(categoryValue));
         preferenceCategoryRepository.save(preferenceCategory);
