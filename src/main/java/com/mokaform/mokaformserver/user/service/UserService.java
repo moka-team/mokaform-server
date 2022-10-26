@@ -1,60 +1,64 @@
 package com.mokaform.mokaformserver.user.service;
 
 import com.mokaform.mokaformserver.common.exception.ApiException;
-import com.mokaform.mokaformserver.common.exception.errorcode.UserErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.user.domain.PreferenceCategory;
+import com.mokaform.mokaformserver.user.domain.Role;
 import com.mokaform.mokaformserver.user.domain.User;
 import com.mokaform.mokaformserver.user.domain.enums.AgeGroup;
 import com.mokaform.mokaformserver.user.domain.enums.Gender;
 import com.mokaform.mokaformserver.user.domain.enums.Job;
-import com.mokaform.mokaformserver.user.dto.request.LoginRequest;
+import com.mokaform.mokaformserver.user.domain.enums.RoleName;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
-import com.mokaform.mokaformserver.user.dto.response.LoginResponse;
 import com.mokaform.mokaformserver.user.repository.PreferenceCategoryRepository;
+import com.mokaform.mokaformserver.user.repository.RoleRepository;
 import com.mokaform.mokaformserver.user.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PreferenceCategoryRepository preferenceCategoryRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PreferenceCategoryRepository preferenceCategoryRepository,
-                       PasswordEncoder passwordEncoder) {
+                       RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.preferenceCategoryRepository = preferenceCategoryRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public void createUser(SignupRequest request) {
+        Role userRole = roleRepository.findByName(RoleName.USER)
+                .orElseThrow(() -> new ApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
         User user = User.builder()
                 .email(request.getEmail())
-//                .password(passwordEncoder.encode(request.getPassword()))
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .nickname(request.getNickname())
                 .ageGroup(AgeGroup.valueOf(request.getAgeGroup()))
                 .gender(Gender.valueOf(request.getGender()))
                 .job(Job.valueOf(request.getJob()))
+                .roles(List.of(userRole))
                 .build();
         userRepository.save(user);
 
         request.getCategory()
                 .forEach(v -> createPreferenceCategory(user, v));
-    }
-
-    @Transactional(readOnly = true)
-    public LoginResponse getUser(LoginRequest request) {
-        User user = userRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
-                .orElseThrow(() ->
-                        new ApiException(UserErrorCode.USER_NOT_FOUND));
-        return new LoginResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -73,4 +77,16 @@ public class UserService {
         PreferenceCategory preferenceCategory = new PreferenceCategory(user, Category.valueOf(categoryValue));
         preferenceCategoryRepository.save(preferenceCategory);
     }
+
+    @Transactional(readOnly = true)
+    public User login(String principal, String credentials) {
+        Assert.isTrue(isNotEmpty(principal), "principal must be provided.");
+        Assert.isTrue(isNotEmpty(credentials), "credentials must be provided.");
+
+        User user = userRepository.findByEmail(principal)
+                .orElseThrow(() -> new UsernameNotFoundException("Could not found user for " + principal));
+        user.checkPassword(passwordEncoder, credentials);
+        return user;
+    }
+
 }
