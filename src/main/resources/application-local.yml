@@ -11,3 +11,6 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: create
+  redis:
+    host: localhost
+    port: 6379
