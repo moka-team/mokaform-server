@@ -121,4 +121,15 @@ public class UserController {
                         .build());
     }
 
+    @GetMapping("/check-nickname-duplication")
+    public ResponseEntity<ApiResponse> checkNicknameDuplication(@RequestParam(value = "nickname") String nickname) {
+        DuplicateValidationResponse response = userService.checkNicknameDuplication(nickname);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("닉네임 중복 확인 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
+
 }
