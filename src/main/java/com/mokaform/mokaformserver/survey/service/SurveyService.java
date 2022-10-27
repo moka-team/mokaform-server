@@ -50,7 +50,9 @@ public class SurveyService {
     }
 
     @Transactional
-    public SurveyCreateResponse createSurvey(SurveyCreateRequest request, User user) {
+    public SurveyCreateResponse createSurvey(SurveyCreateRequest request, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
+
         Survey savedSurvey = saveSurvey(Survey.builder()
                 .user(user)
                 .title(request.getTitle())
