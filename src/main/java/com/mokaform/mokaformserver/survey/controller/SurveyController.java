@@ -11,7 +11,6 @@ import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
-import com.mokaform.mokaformserver.user.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +27,8 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class SurveyController {
     private final SurveyService surveyService;
 
-    private final UserRepository userRepository;
-
-    public SurveyController(SurveyService surveyService, UserRepository userRepository) {
+    public SurveyController(SurveyService surveyService) {
         this.surveyService = surveyService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping
