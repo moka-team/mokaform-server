@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.answer.dto.mapping;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -7,12 +8,24 @@ import lombok.NoArgsConstructor;
 @Getter
 public class OXAnswerStatsMapping {
 
+    private Long questionId;
+
+    private Long questionIndex;
+
     private String title;
 
-    private Boolean isYes;
+    private Long yesCount;
 
-    public OXAnswerStatsMapping(String title, Boolean isYes) {
+    private Long noCount;
+
+    @Builder
+    public OXAnswerStatsMapping(Long questionId, Long questionIndex,
+                                String title, Long yesCount,
+                                Long noCount) {
+        this.questionId = questionId;
+        this.questionIndex = questionIndex;
         this.title = title;
-        this.isYes = isYes;
+        this.yesCount = yesCount;
+        this.noCount = noCount;
     }
 }

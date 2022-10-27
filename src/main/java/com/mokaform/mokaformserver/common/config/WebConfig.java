@@ -16,7 +16,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://feat-deploy--papaya-horse-fada9b.netlify.app",
                         "https://mokaform-client-bnjs9ux4o-mokaform-test.vercel.app",
                         "https://mokaform-client.vercel.app",
-                        "https://mokaform.netlify.app")
+                        "https://mokaform.netlify.app",
+                        "https://www.mokaform.site")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);

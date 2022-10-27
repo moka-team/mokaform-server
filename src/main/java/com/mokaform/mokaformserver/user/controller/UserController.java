@@ -1,12 +1,12 @@
 package com.mokaform.mokaformserver.user.controller;
 
 import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
+import com.mokaform.mokaformserver.answer.dto.response.stat.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationToken;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
-import com.mokaform.mokaformserver.survey.dto.response.AnswerStatsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
