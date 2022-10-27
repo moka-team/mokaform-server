@@ -49,15 +49,16 @@ public class SurveyController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> getSurveyDetails(@RequestParam(required = false) Long surveyId,
-                                                        @RequestParam(required = false) String sharingKey) {
+                                                        @RequestParam(required = false) String sharingKey,
+                                                        @AuthenticationPrincipal JwtAuthentication authentication) {
         SurveyDetailsResponse response = null;
         if ((Objects.nonNull(surveyId) && Objects.nonNull(sharingKey))
                 || (Objects.isNull(surveyId) && Objects.isNull(sharingKey))) {
             throw new ApiException(CommonErrorCode.INVALID_REQUEST);
         } else if (Objects.nonNull(surveyId)) {
-            response = surveyService.getSurveyDetailsById(surveyId);
+            response = surveyService.getSurveyDetailsById(surveyId, authentication.email);
         } else if (Objects.nonNull(sharingKey)) {
-            response = surveyService.getSurveyDetailsBySharingKey(sharingKey);
+            response = surveyService.getSurveyDetailsBySharingKey(sharingKey, authentication.email);
         }
 
         return ResponseEntity.ok()
@@ -79,8 +80,9 @@ public class SurveyController {
     }
 
     @DeleteMapping("/{surveyId}")
-    public ResponseEntity<ApiResponse> removeSurvey(@PathVariable(value = "surveyId") Long surveyId) {
-        SurveyDeleteResponse response = surveyService.deleteSurvey(surveyId);
+    public ResponseEntity<ApiResponse> removeSurvey(@PathVariable(value = "surveyId") Long surveyId,
+                                                    @AuthenticationPrincipal JwtAuthentication authentication) {
+        SurveyDeleteResponse response = surveyService.deleteSurvey(surveyId, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()

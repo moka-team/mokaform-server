@@ -2,6 +2,7 @@ package com.mokaform.mokaformserver.survey.service;
 
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.SurveyErrorCode;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.common.util.UserUtilService;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
@@ -98,27 +99,31 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
-    public SurveyDetailsResponse getSurveyDetailsById(Long surveyId) {
+    public SurveyDetailsResponse getSurveyDetailsById(Long surveyId, String userEmail) {
+        userUtilService.checkUser(userEmail);
         Survey survey = getSurveyById(surveyId);
 
         return getSurveyDetails(survey);
     }
 
     @Transactional(readOnly = true)
-    public SurveyDetailsResponse getSurveyDetailsBySharingKey(String sharingKey) {
+    public SurveyDetailsResponse getSurveyDetailsBySharingKey(String sharingKey, String userEmail) {
+        userUtilService.checkUser(userEmail);
         Survey survey = getSurveyBySharingKey(sharingKey);
 
         return getSurveyDetails(survey);
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable, String userEmail) {
-        User user = userUtilService.getUser(userEmail);
-        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable, user.getId());
+        User user = userEmail == null ? null : userUtilService.getUser(userEmail);
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable, user == null ? null : user.getId());
         return new PageResponse<>(
                 surveyInfos.map(surveyInfo ->
                         new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, String userEmail) {
         User user = userUtilService.getUser(userEmail);
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, user.getId());
@@ -155,8 +160,10 @@ public class SurveyService {
     }
 
     @Transactional
-    public SurveyDeleteResponse deleteSurvey(Long surveyId) {
+    public SurveyDeleteResponse deleteSurvey(Long surveyId, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
         Survey survey = getSurveyById(surveyId);
+        validateUserAuthority(user, survey);
         survey.updateIsDeleted(true);
         return new SurveyDeleteResponse(survey.getSurveyId());
     }
@@ -227,4 +234,9 @@ public class SurveyService {
         return surveyCategoryRepository.findSurveyCategoriesBySurvey(survey);
     }
 
+    private void validateUserAuthority(User user, Survey survey) {
+        if (user.getId() != survey.getUser().getId()) {
+            throw new ApiException(SurveyErrorCode.NO_PERMISSION_TO_DELETE_SURVEY);
+        }
+    }
 }

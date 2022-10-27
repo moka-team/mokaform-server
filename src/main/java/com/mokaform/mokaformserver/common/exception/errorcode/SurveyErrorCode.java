@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 public enum SurveyErrorCode implements ErrorCode {
 
     INVALID_SORT_TYPE("S001", HttpStatus.BAD_REQUEST, "Invalid survey sort type"),
-    ;
+    NO_PERMISSION_TO_DELETE_SURVEY("S002", HttpStatus.NOT_FOUND, "해당 설문을 삭제할 수 없습니다.");
 
     private final String code;
     private final HttpStatus httpStatus;
