@@ -62,7 +62,8 @@ public class AnswerService {
     }
 
     @Transactional
-    public void createAnswer(AnswerCreateRequest request, User user) {
+    public void createAnswer(AnswerCreateRequest request, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
 
         request.getEssayAnswers()
                 .forEach(answer -> {
