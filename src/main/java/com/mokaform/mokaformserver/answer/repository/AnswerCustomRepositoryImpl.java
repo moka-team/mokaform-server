@@ -52,6 +52,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(EssayAnswerStatsMapping.class,
+                                question.questionId,
                                 question.index
                                         .as("questionIndex"),
                                 question.title,
@@ -73,6 +74,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(MultipleChoiceAnswerStatsMapping.class,
+                                question.questionId,
                                 question.index
                                         .as("questionIndex"),
                                 question.title,
@@ -97,6 +99,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(OXAnswerStatsMapping.class,
+                                question.questionId,
                                 question.index
                                         .as("questionIndex"),
                                 question.title,
