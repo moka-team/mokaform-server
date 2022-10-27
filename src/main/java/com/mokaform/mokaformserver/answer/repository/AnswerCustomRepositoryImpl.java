@@ -5,6 +5,7 @@ import com.mokaform.mokaformserver.answer.dto.mapping.EssayAnswerStatsMapping;
 import com.mokaform.mokaformserver.answer.dto.mapping.MultipleChoiceAnswerStatsMapping;
 import com.mokaform.mokaformserver.answer.dto.mapping.OXAnswerStatsMapping;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
@@ -103,7 +104,18 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
                                 question.index
                                         .as("questionIndex"),
                                 question.title,
-                                oXAnswer.isYes))
+                                new CaseBuilder()
+                                        .when(oXAnswer.isYes.isTrue())
+                                        .then(1L)
+                                        .otherwise(0L)
+                                        .sum()
+                                        .as("yesCount"),
+                                new CaseBuilder()
+                                        .when(oXAnswer.isYes.isFalse())
+                                        .then(1L)
+                                        .otherwise(0L)
+                                        .sum()
+                                        .as("noCount")))
                 .from(survey)
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
                 .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
@@ -111,6 +123,7 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
                 .where(
                         survey.surveyId.eq(surveyId),
                         oXAnswer.oxAnswerId.isNotNull())
+                .groupBy(question.questionId)
                 .fetch();
     }
 

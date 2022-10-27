@@ -14,14 +14,18 @@ public class OXAnswerStatsMapping {
 
     private String title;
 
-    private Boolean isYes;
+    private Long yesCount;
+
+    private Long noCount;
 
     @Builder
     public OXAnswerStatsMapping(Long questionId, Long questionIndex,
-                                String title, Boolean isYes) {
+                                String title, Long yesCount,
+                                Long noCount) {
         this.questionId = questionId;
         this.questionIndex = questionIndex;
         this.title = title;
-        this.isYes = isYes;
+        this.yesCount = yesCount;
+        this.noCount = noCount;
     }
 }
