@@ -13,7 +13,6 @@ public class LocalLoginResponse {
 
     private final String refreshToken;
 
-    // TODO: 테스트용 -> 추후 삭제
     private final String email;
 
     public LocalLoginResponse(String accessToken, String refreshToken, String username) {
