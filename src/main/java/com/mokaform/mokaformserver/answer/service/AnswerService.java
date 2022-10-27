@@ -10,7 +10,7 @@ import com.mokaform.mokaformserver.answer.dto.mapping.MultipleChoiceAnswerStatsM
 import com.mokaform.mokaformserver.answer.dto.mapping.OXAnswerStatsMapping;
 import com.mokaform.mokaformserver.answer.dto.request.AnswerCreateRequest;
 import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
-import com.mokaform.mokaformserver.answer.dto.response.AnswerStatsResponse;
+import com.mokaform.mokaformserver.answer.dto.response.stat.*;
 import com.mokaform.mokaformserver.answer.repository.AnswerRepository;
 import com.mokaform.mokaformserver.answer.repository.EssayAnswerRepository;
 import com.mokaform.mokaformserver.answer.repository.MultipleChoiceAnswerRepository;
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AnswerService {
@@ -141,61 +142,66 @@ public class AnswerService {
         List<MultipleChoiceAnswerStatsMapping> multipleChoiceAnswers = answerRepository.findMultipleChoiceAnswers(surveyId);
         List<OXAnswerStatsMapping> oxAnswers = answerRepository.findOxAnswers(surveyId);
 
-        Map<String, List<String>> essayStats = new HashMap<>();
-        Map<String, Map<String, Long>> multipleChoiceStats = new HashMap<>();
-        Map<String, Map<String, Long>> oxStats = new HashMap<>();
+        /**
+         * 질문(question)별로 Map으로 묶어줌
+         */
+        Map<Long, List<EssayAnswerStatsMapping>> essayStatMap = new HashMap<>();
         essayAnswers.forEach(essayAnswer -> {
-            if (essayStats.containsKey(essayAnswer.getTitle())) {
-                List<String> value = essayStats.get(essayAnswer.getTitle());
-                value.add(essayAnswer.getAnswerContent());
-                essayStats.replace(essayAnswer.getTitle(), value);
+            if (essayStatMap.containsKey(essayAnswer.getQuestionId())) {
+                List<EssayAnswerStatsMapping> value = essayStatMap.get(essayAnswer.getQuestionId());
+                value.add(essayAnswer);
+                essayStatMap.replace(essayAnswer.getQuestionId(), value);
             } else {
-                ArrayList<String> list = new ArrayList<>();
-                list.add(essayAnswer.getAnswerContent());
-                essayStats.put(essayAnswer.getTitle(), list);
+                ArrayList<EssayAnswerStatsMapping> list = new ArrayList<>();
+                list.add(essayAnswer);
+                essayStatMap.put(essayAnswer.getQuestionId(), list);
             }
         });
+
+        Map<Long, List<MultipleChoiceAnswerStatsMapping>> multipleChoiceStatMap = new HashMap<>();
         multipleChoiceAnswers.forEach(multipleChoiceAnswer -> {
-            if (multipleChoiceStats.containsKey(multipleChoiceAnswer.getTitle())) {
-                Map<String, Long> value = multipleChoiceStats.get(multipleChoiceAnswer.getTitle());
-                if (value.containsKey(multipleChoiceAnswer.getMultiQuestionContent())) {
-                    value.replace(multipleChoiceAnswer.getMultiQuestionContent(), value.get(multipleChoiceAnswer.getMultiQuestionContent()) + 1L);
-                } else {
-                    value.put(multipleChoiceAnswer.getMultiQuestionContent(), 1L);
-                }
-                multipleChoiceStats.replace(multipleChoiceAnswer.getTitle(), value);
+            if (multipleChoiceStatMap.containsKey(multipleChoiceAnswer.getQuestionId())) {
+                List<MultipleChoiceAnswerStatsMapping> value = multipleChoiceStatMap.get(multipleChoiceAnswer.getQuestionId());
+                value.add(multipleChoiceAnswer);
+                multipleChoiceStatMap.replace(multipleChoiceAnswer.getQuestionId(), value);
             } else {
-                Map<String, Long> value = new HashMap<>();
-                value.put(multipleChoiceAnswer.getMultiQuestionContent(), 1L);
-                multipleChoiceStats.put(multipleChoiceAnswer.getTitle(), value);
+                ArrayList<MultipleChoiceAnswerStatsMapping> list = new ArrayList<>();
+                list.add(multipleChoiceAnswer);
+                multipleChoiceStatMap.put(multipleChoiceAnswer.getQuestionId(), list);
             }
         });
-        oxAnswers.forEach(oxAnswer -> {
-            if (oxStats.containsKey(oxAnswer.getTitle())) {
-                Map<String, Long> value = oxStats.get(oxAnswer.getTitle());
-                if (oxAnswer.getIsYes() == true) {
-                    if (value.containsKey("yes")) {
-                        value.replace("yes", value.get("yes") + 1L);
-                    } else {
-                        value.put("yes", 1L);
-                    }
-                } else {
-                    if (value.containsKey("no")) {
-                        value.replace("no", value.get("no") + 1L);
-                    } else {
-                        value.put("no", 1L);
-                    }
-                }
-            } else {
-                Map<String, Long> value = new HashMap<>();
-                if (oxAnswer.getIsYes() == true) {
-                    value.put("yes", 1L);
-                } else {
-                    value.put("no", 1L);
-                }
-                oxStats.put(oxAnswer.getTitle(), value);
-            }
-        });
+
+
+        /**
+         * Response 포맷에 맞게 Map -> List로 변형
+         */
+        List<EssayStat> essayStats = essayStatMap.entrySet().stream()
+                .map(entry -> {
+                    EssayAnswerStatsMapping questionInfo = entry.getValue().get(0);
+                    return EssayStat.builder()
+                            .questionIndex(questionInfo.getQuestionIndex())
+                            .title(questionInfo.getTitle())
+                            .answerContents(entry.getValue().stream()
+                                    .map(EssayAnswerStatsMapping::getAnswerContent)
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        List<MultipleChoiceStat> multipleChoiceStats = multipleChoiceStatMap.entrySet().stream()
+                .map(entry -> {
+                    MultipleChoiceAnswerStatsMapping questionInfo = entry.getValue().get(0);
+                    return MultipleChoiceStat.builder()
+                            .questionIndex(questionInfo.getQuestionIndex())
+                            .title(questionInfo.getTitle())
+                            .results(entry.getValue().stream()
+                                    .map(MultipleChoiceResult::new)
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        List<OXStat> oxStats = oxAnswers.stream().map(OXStat::new).collect(Collectors.toList());
 
         return AnswerStatsResponse.builder()
                 .essayStats(essayStats)
