@@ -7,11 +7,16 @@ import lombok.NoArgsConstructor;
 @Getter
 public class EssayAnswerStatsMapping {
 
+    private Long questionIndex;
+
     private String title;
 
     private String answerContent;
 
-    public EssayAnswerStatsMapping(String title, String answerContent) {
+    public EssayAnswerStatsMapping(Long questionIndex,
+                                   String title,
+                                   String answerContent) {
+        this.questionIndex = questionIndex;
         this.title = title;
         this.answerContent = answerContent;
     }

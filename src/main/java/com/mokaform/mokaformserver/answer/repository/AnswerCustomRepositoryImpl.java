@@ -52,6 +52,8 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(EssayAnswerStatsMapping.class,
+                                question.index
+                                        .as("questionIndex"),
                                 question.title,
                                 essayAnswer.answerContent))
                 .from(survey)
@@ -71,15 +73,20 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(MultipleChoiceAnswerStatsMapping.class,
+                                question.index
+                                        .as("questionIndex"),
                                 question.title,
-                                multipleChoiceAnswer.multipleChoiceQuestion.multiQuestionContent))
+                                multipleChoiceAnswer.multipleChoiceQuestion.multiQuestionContent,
+                                multipleChoiceAnswer.multipleChoiceAnswerId
+                                        .countDistinct()
+                                        .as("multiQuestionContentCount")))
                 .from(survey)
                 .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
                 .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
                 .leftJoin(multipleChoiceAnswer).on(answer.answerId.eq(multipleChoiceAnswer.answer.answerId))
                 .where(
-                        survey.surveyId.eq(surveyId),
-                        multipleChoiceAnswer.multipleChoiceAnswerId.isNotNull())
+                        survey.surveyId.eq(surveyId))
+                .groupBy(question.questionId, multipleChoiceAnswer.multipleChoiceQuestion.multiQuestionId)
                 .fetch();
     }
 
@@ -90,6 +97,8 @@ public class AnswerCustomRepositoryImpl implements AnswerCustomRepository {
         return queryFactory
                 .select(
                         Projections.fields(OXAnswerStatsMapping.class,
+                                question.index
+                                        .as("questionIndex"),
                                 question.title,
                                 oXAnswer.isYes))
                 .from(survey)
