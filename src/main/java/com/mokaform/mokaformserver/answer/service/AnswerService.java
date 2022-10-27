@@ -17,6 +17,8 @@ import com.mokaform.mokaformserver.answer.repository.MultipleChoiceAnswerReposit
 import com.mokaform.mokaformserver.answer.repository.OXAnswerRepository;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.SurveyErrorCode;
+import com.mokaform.mokaformserver.common.util.SurveyUtilService;
 import com.mokaform.mokaformserver.common.util.UserUtilService;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
@@ -42,6 +44,7 @@ public class AnswerService {
     private final SurveyRepository surveyRepository;
 
     private final UserUtilService userUtilService;
+    private final SurveyUtilService surveyUtilService;
 
     public AnswerService(AnswerRepository answerRepository,
                          EssayAnswerRepository essayAnswerRepository,
@@ -50,7 +53,8 @@ public class AnswerService {
                          QuestionRepository questionRepository,
                          MultiChoiceQuestionRepository multiChoiceQuestionRepository,
                          SurveyRepository surveyRepository,
-                         UserUtilService userUtilService) {
+                         UserUtilService userUtilService,
+                         SurveyUtilService surveyUtilService) {
         this.answerRepository = answerRepository;
         this.essayAnswerRepository = essayAnswerRepository;
         this.multipleChoiceAnswerRepository = multipleChoiceAnswerRepository;
@@ -59,6 +63,7 @@ public class AnswerService {
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
         this.surveyRepository = surveyRepository;
         this.userUtilService = userUtilService;
+        this.surveyUtilService = surveyUtilService;
     }
 
     @Transactional
@@ -144,7 +149,12 @@ public class AnswerService {
                 .build();
     }
 
-    public AnswerStatsResponse getAnswerStats(Long surveyId) {
+    public AnswerStatsResponse getAnswerStats(Long surveyId, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
+        Survey survey = surveyUtilService.getSurvey(surveyId);
+
+        validateUserAuthority(user, survey);
+
         List<EssayAnswerStatsMapping> essayAnswers = answerRepository.findEssayAnswers(surveyId);
         List<MultipleChoiceAnswerStatsMapping> multipleChoiceAnswers = answerRepository.findMultipleChoiceAnswers(surveyId);
         List<OXAnswerStatsMapping> oxAnswers = answerRepository.findOxAnswers(surveyId);
@@ -263,4 +273,9 @@ public class AnswerService {
                 .orElseThrow(() -> new ApiException(CommonErrorCode.INVALID_PARAMETER));
     }
 
+    private void validateUserAuthority(User user, Survey survey) {
+        if (user.getId() != survey.getUser().getId()) {
+            throw new ApiException(SurveyErrorCode.NO_PERMISSION_TO_GET_SURVEY_INFO);
+        }
+    }
 }

@@ -94,8 +94,9 @@ public class UserController {
     }
 
     @GetMapping("/my/surveys/{surveyId}/stats")
-    public ResponseEntity<ApiResponse> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId) {
-        AnswerStatsResponse response = answerService.getAnswerStats(surveyId);
+    public ResponseEntity<ApiResponse> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId,
+                                                      @AuthenticationPrincipal JwtAuthentication authentication) {
+        AnswerStatsResponse response = answerService.getAnswerStats(surveyId, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
