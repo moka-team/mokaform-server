@@ -1,4 +1,4 @@
-package com.mokaform.mokaformserver.survey.dto.response;
+package com.mokaform.mokaformserver.answer.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

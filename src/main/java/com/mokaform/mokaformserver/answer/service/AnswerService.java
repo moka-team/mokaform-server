@@ -10,6 +10,7 @@ import com.mokaform.mokaformserver.answer.dto.mapping.MultipleChoiceAnswerStatsM
 import com.mokaform.mokaformserver.answer.dto.mapping.OXAnswerStatsMapping;
 import com.mokaform.mokaformserver.answer.dto.request.AnswerCreateRequest;
 import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
+import com.mokaform.mokaformserver.answer.dto.response.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.repository.AnswerRepository;
 import com.mokaform.mokaformserver.answer.repository.EssayAnswerRepository;
 import com.mokaform.mokaformserver.answer.repository.MultipleChoiceAnswerRepository;
@@ -19,7 +20,6 @@ import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
-import com.mokaform.mokaformserver.survey.dto.response.AnswerStatsResponse;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
