@@ -20,6 +20,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -56,11 +57,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/surveys")
     public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                      @RequestParam Long userId) {
-        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, userId);
+                                                      @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -69,11 +69,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/submitted-surveys")
     public ResponseEntity<ApiResponse> getSubmittedSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                               @RequestParam Long userId) {
-        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, userId);
+                                                               @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -82,11 +81,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/submitted-surveys/{sharingKey}")
     public ResponseEntity<ApiResponse> getSubmittedSurveyDetail(@PathVariable(value = "sharingKey") String sharingKey,
-                                                                @RequestParam Long userId) {
-        AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, userId);
+                                                                @AuthenticationPrincipal JwtAuthentication authentication) {
+        AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -127,19 +125,6 @@ public class UserController {
                         .data(response)
                         .build());
     }
-
-//    /**
-//     * 보호받는 엔드포인트 - ROLE_USER 또는 ROLE_ADMIN 권한 필요함
-//     */
-//    @GetMapping(path = "/me")
-//    public LocalLoginResponse me(@AuthenticationPrincipal JwtAuthentication authentication) {
-//        return userService.findByLoginEmail(authentication.email)
-//                .map(user ->
-//                        new LocalLoginResponse(authentication.accessToken, null, authentication.email)
-//                )
-//                .orElseThrow(() ->
-//                        new IllegalArgumentException("Could not found user for " + authentication.email));
-//    }
 
     /**
      * 사용자 로그인

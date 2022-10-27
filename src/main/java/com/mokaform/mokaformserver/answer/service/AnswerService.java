@@ -17,6 +17,7 @@ import com.mokaform.mokaformserver.answer.repository.MultipleChoiceAnswerReposit
 import com.mokaform.mokaformserver.answer.repository.OXAnswerRepository;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.util.UserUtilService;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
@@ -40,13 +41,16 @@ public class AnswerService {
     private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
     private final SurveyRepository surveyRepository;
 
+    private final UserUtilService userUtilService;
+
     public AnswerService(AnswerRepository answerRepository,
                          EssayAnswerRepository essayAnswerRepository,
                          MultipleChoiceAnswerRepository multipleChoiceAnswerRepository,
                          OXAnswerRepository oxAnswerRepository,
                          QuestionRepository questionRepository,
                          MultiChoiceQuestionRepository multiChoiceQuestionRepository,
-                         SurveyRepository surveyRepository) {
+                         SurveyRepository surveyRepository,
+                         UserUtilService userUtilService) {
         this.answerRepository = answerRepository;
         this.essayAnswerRepository = essayAnswerRepository;
         this.multipleChoiceAnswerRepository = multipleChoiceAnswerRepository;
@@ -54,6 +58,7 @@ public class AnswerService {
         this.questionRepository = questionRepository;
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
         this.surveyRepository = surveyRepository;
+        this.userUtilService = userUtilService;
     }
 
     @Transactional
@@ -111,10 +116,11 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public AnswerDetailResponse getAnswerDetail(String sharingKey, Long userId) {
+    public AnswerDetailResponse getAnswerDetail(String sharingKey, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
         Survey survey = getSurveyBySharingKey(sharingKey);
 
-        List<AnswerInfoMapping> answerInfos = answerRepository.findAnswerInfos(survey.getSurveyId(), userId);
+        List<AnswerInfoMapping> answerInfos = answerRepository.findAnswerInfos(survey.getSurveyId(), user.getId());
 
         List<EssayAnswer> essayAnswers = new ArrayList<>();
         List<MultipleChoiceAnswer> multipleChoiceAnswers = new ArrayList<>();
@@ -130,7 +136,7 @@ public class AnswerService {
 
         return AnswerDetailResponse.builder()
                 .surveyId(survey.getSurveyId())
-                .surveyeeId(userId)
+                .surveyeeId(user.getId())
                 .essayAnswers(essayAnswers)
                 .multipleChoiceAnswers(multipleChoiceAnswers)
                 .oxAnswers(oxAnswers)

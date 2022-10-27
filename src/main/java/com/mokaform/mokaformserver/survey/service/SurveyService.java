@@ -3,6 +3,7 @@ package com.mokaform.mokaformserver.survey.service;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.response.PageResponse;
+import com.mokaform.mokaformserver.common.util.UserUtilService;
 import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
@@ -34,14 +35,18 @@ public class SurveyService {
     private final MultiChoiceQuestionRepository multiChoiceQuestionRepository;
     private final SurveyCategoryRepository surveyCategoryRepository;
 
+    private final UserUtilService userUtilService;
+
     public SurveyService(SurveyRepository surveyRepository,
                          QuestionRepository questionRepository,
                          MultiChoiceQuestionRepository multiChoiceQuestionRepository,
-                         SurveyCategoryRepository surveyCategoryRepository) {
+                         SurveyCategoryRepository surveyCategoryRepository,
+                         UserUtilService userUtilService) {
         this.surveyRepository = surveyRepository;
         this.questionRepository = questionRepository;
         this.multiChoiceQuestionRepository = multiChoiceQuestionRepository;
         this.surveyCategoryRepository = surveyCategoryRepository;
+        this.userUtilService = userUtilService;
     }
 
     @Transactional
@@ -104,15 +109,17 @@ public class SurveyService {
         return getSurveyDetails(survey);
     }
 
-    public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable, Long userId) {
-        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable, userId);
+    public PageResponse<SurveyInfoResponse> getSurveyInfos(Pageable pageable, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findSurveyInfos(pageable, user.getId());
         return new PageResponse<>(
                 surveyInfos.map(surveyInfo ->
                         new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
     }
 
-    public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, Long userId) {
-        Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, userId);
+    public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, String userEmail) {
+        User user = userUtilService.getUser(userEmail);
+        Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, user.getId());
 
         if ("surveyeeCount".equals(pageable.getSort().get().findFirst().get().getProperty())) {
             Comparator<SubmittedSurveyInfoResponse> comparator = null;
