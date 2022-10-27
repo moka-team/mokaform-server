@@ -21,4 +21,11 @@ public class UserUtilService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public void checkUser(String email) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new ApiException(UserErrorCode.USER_NOT_FOUND);
+        }
+    }
 }
