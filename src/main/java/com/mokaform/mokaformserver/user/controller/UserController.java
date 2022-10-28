@@ -14,6 +14,7 @@ import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
+import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -145,4 +146,14 @@ public class UserController {
                         .build());
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse> getUser(@AuthenticationPrincipal JwtAuthentication authentication) {
+        UserGetResponse response = userService.getUserInfo(authentication.email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("나의 정보 조회가 성공하였습니다.")
+                        .data(response)
+                        .build());
+    }
 }
