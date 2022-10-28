@@ -2,6 +2,7 @@ package com.mokaform.mokaformserver.user.service;
 
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.UserErrorCode;
 import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.user.domain.PreferenceCategory;
 import com.mokaform.mokaformserver.user.domain.Role;
@@ -12,6 +13,7 @@ import com.mokaform.mokaformserver.user.domain.enums.Job;
 import com.mokaform.mokaformserver.user.domain.enums.RoleName;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
+import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
 import com.mokaform.mokaformserver.user.repository.PreferenceCategoryRepository;
 import com.mokaform.mokaformserver.user.repository.RoleRepository;
 import com.mokaform.mokaformserver.user.repository.UserRepository;
@@ -87,6 +89,15 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Could not found user for " + principal));
         user.checkPassword(passwordEncoder, credentials);
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public UserGetResponse getUserInfo(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+        List<PreferenceCategory> preferenceCategories = preferenceCategoryRepository.findByUserId(user.getId());
+
+        return new UserGetResponse(user, preferenceCategories);
     }
 
 }
