@@ -131,12 +131,18 @@ public class UserController {
      * 사용자 로그인
      */
     @PostMapping(path = "/login")
-    public LocalLoginResponse login(@RequestBody @Valid LocalLoginRequest request) {
+    public ResponseEntity<ApiResponse> login(@RequestBody @Valid LocalLoginRequest request) {
         JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(), request.getPassword());
         Authentication resultToken = authenticationManager.authenticate(authToken);
         JwtAuthentication authentication = (JwtAuthentication) resultToken.getPrincipal();
         String refreshToken = (String) resultToken.getDetails();
-        return new LocalLoginResponse(authentication.accessToken, refreshToken, authentication.email);
+        LocalLoginResponse response = new LocalLoginResponse(authentication.accessToken, refreshToken, authentication.email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("로그인 성공하였습니다.")
+                        .data(response)
+                        .build());
     }
 
 }
