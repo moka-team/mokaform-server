@@ -3,19 +3,24 @@ package com.mokaform.mokaformserver.user.controller;
 import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
 import com.mokaform.mokaformserver.answer.dto.response.stat.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
+import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
+import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationToken;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
-import com.mokaform.mokaformserver.user.dto.request.LoginRequest;
+import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
-import com.mokaform.mokaformserver.user.dto.response.LoginResponse;
+import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,12 +35,16 @@ public class UserController {
     private final SurveyService surveyService;
     private final AnswerService answerService;
 
+    private final AuthenticationManager authenticationManager;
+
     public UserController(UserService userService,
                           SurveyService surveyService,
-                          AnswerService answerService) {
+                          AnswerService answerService,
+                          AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.surveyService = surveyService;
         this.answerService = answerService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/signup")
@@ -48,11 +57,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/surveys")
     public ResponseEntity<ApiResponse> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                      @RequestParam Long userId) {
-        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, userId);
+                                                      @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -61,11 +69,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/submitted-surveys")
     public ResponseEntity<ApiResponse> getSubmittedSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                               @RequestParam Long userId) {
-        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, userId);
+                                                               @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -74,11 +81,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: userId는 로그인 구현 후에 수정
     @GetMapping("/my/submitted-surveys/{sharingKey}")
     public ResponseEntity<ApiResponse> getSubmittedSurveyDetail(@PathVariable(value = "sharingKey") String sharingKey,
-                                                                @RequestParam Long userId) {
-        AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, userId);
+                                                                @AuthenticationPrincipal JwtAuthentication authentication) {
+        AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -87,21 +93,10 @@ public class UserController {
                         .build());
     }
 
-    // TODO: 로그인 구현 후에 수정
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
-        LoginResponse response = userService.getUser(request);
-
-        return ResponseEntity.ok()
-                .body(ApiResponse.builder()
-                        .message("로그읜 성공하였습니다.")
-                        .data(response)
-                        .build());
-    }
-
     @GetMapping("/my/surveys/{surveyId}/stats")
-    public ResponseEntity<ApiResponse> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId) {
-        AnswerStatsResponse response = answerService.getAnswerStats(surveyId);
+    public ResponseEntity<ApiResponse> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId,
+                                                      @AuthenticationPrincipal JwtAuthentication authentication) {
+        AnswerStatsResponse response = answerService.getAnswerStats(surveyId, authentication.email);
 
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
@@ -130,6 +125,18 @@ public class UserController {
                         .message("닉네임 중복 확인 성공하였습니다.")
                         .data(response)
                         .build());
+    }
+
+    /**
+     * 사용자 로그인
+     */
+    @PostMapping(path = "/login")
+    public LocalLoginResponse login(@RequestBody @Valid LocalLoginRequest request) {
+        JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(), request.getPassword());
+        Authentication resultToken = authenticationManager.authenticate(authToken);
+        JwtAuthentication authentication = (JwtAuthentication) resultToken.getPrincipal();
+        String refreshToken = (String) resultToken.getDetails();
+        return new LocalLoginResponse(authentication.accessToken, refreshToken, authentication.email);
     }
 
 }

@@ -1,9 +1,17 @@
 package com.mokaform.mokaformserver.common.config;
 
+import com.mokaform.mokaformserver.common.jwt.ExceptionHandlerFilter;
+import com.mokaform.mokaformserver.common.jwt.Jwt;
+import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationFilter;
+import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationProvider;
+import com.mokaform.mokaformserver.common.util.RedisService;
+import com.mokaform.mokaformserver.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +31,16 @@ import javax.servlet.http.HttpServletResponse;
 public class WebSecurityConfig {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final JwtConfig jwtConfig;
+
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
+
+    public WebSecurityConfig(JwtConfig jwtConfig,
+                             ExceptionHandlerFilter exceptionHandlerFilter) {
+        this.jwtConfig = jwtConfig;
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
+    }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -49,12 +68,44 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public Jwt jwt() {
+        return new Jwt(
+                jwtConfig.getIssuer(),
+                jwtConfig.getClientSecret(),
+//                jwtConfig.getAccessTokenHeader(),
+//                jwtConfig.getRefreshTokenHeader(),
+                jwtConfig.getAccessTokenExpirySeconds(),
+                jwtConfig.getRefreshTokenExpirySeconds()
+        );
+    }
+
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider(Jwt jwt,
+                                                               UserService userService,
+                                                               RedisService redisService) {
+        return new JwtAuthenticationProvider(jwt, userService, redisService);
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(Jwt jwt) {
+        return new JwtAuthenticationFilter(jwtConfig.getAccessTokenHeader(), jwt);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtAuthenticationFilter jwtAuthenticationFilter,
+                                           AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         http.authorizeRequests()
                 .anyRequest().permitAll()
                 .and()
@@ -83,7 +134,18 @@ public class WebSecurityConfig {
                  * 예외처리 핸들러
                  */
                 .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler());
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
+                /**
+                 * FilterChain
+                 */
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter,
+                        JwtAuthenticationFilter.class);
+
         return http.build();
     }
+
 }
