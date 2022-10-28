@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.common.jwt;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -58,8 +59,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
+                } catch (TokenExpiredException e) {
+                    log.warn("만료된 토큰입니다. {}", e.getMessage());
+                    throw e;
                 } catch (Exception e) {
                     log.warn("Jwt processing failed: {}", e.getMessage());
+                    throw e;
                 }
             });
         } else {
