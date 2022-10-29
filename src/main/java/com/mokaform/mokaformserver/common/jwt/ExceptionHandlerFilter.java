@@ -31,7 +31,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (TokenExpiredException e) {
             log.warn("AccessToken 유효기한 만료되었습니다. {}", e.getMessage());
-            setErrorResponse(response, CommonErrorCode.ACCESS_TOKEN_EXPIRED);
+            setErrorResponse(response, CommonErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (AuthException e) {
             log.warn("AccessToken 로그아웃 처리되었습니다. {}", e.getMessage());
             setErrorResponse(response, e.getErrorCode());
