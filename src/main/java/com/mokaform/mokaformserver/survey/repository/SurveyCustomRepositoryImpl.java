@@ -104,7 +104,9 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
         JPAQuery<Long> countQuery = queryFactory
                 .select(survey.surveyId.countDistinct())
-                .from(survey)
+                .from(answer)
+                .leftJoin(question).on(answer.question.questionId.eq(question.questionId))
+                .leftJoin(survey).on(question.survey.surveyId.eq(survey.surveyId))
                 .where(
                         answer.user.id.eq(userId));
 
