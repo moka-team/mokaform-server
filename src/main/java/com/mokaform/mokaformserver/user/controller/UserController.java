@@ -70,7 +70,8 @@ public class UserController {
 
     @Operation(summary = "내가 작성한 설문 다건 조회", description = "내가 작성한 설문 다건 조회하는 API입니다.")
     @GetMapping("/my/surveys")
-    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                          @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
                                                                           @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, authentication.email);
 
@@ -85,7 +86,8 @@ public class UserController {
 
     @Operation(summary = "내가 참여한 설문 다건 조회", description = "내가 참여한 설문 다건 조회하는 API입니다.")
     @GetMapping("/my/submitted-surveys")
-    public ResponseEntity<ApiResponse<SubmittedSurveyInfoResponse>> getSubmittedSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+    public ResponseEntity<ApiResponse<SubmittedSurveyInfoResponse>> getSubmittedSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                                            @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
                                                                                             @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, authentication.email);
 

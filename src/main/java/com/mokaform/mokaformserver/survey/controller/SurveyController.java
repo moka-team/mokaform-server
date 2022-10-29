@@ -76,7 +76,8 @@ public class SurveyController {
 
     @Operation(summary = "설문 다건 조회", description = "설문을 다건 조회하는 API입니다.")
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
+    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                          @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable) {
         PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, null);
 
         ApiResponse apiResponse = ApiResponse.builder()
