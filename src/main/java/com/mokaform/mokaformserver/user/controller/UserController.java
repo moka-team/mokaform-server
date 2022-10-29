@@ -5,6 +5,7 @@ import com.mokaform.mokaformserver.answer.dto.response.stat.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationToken;
+import com.mokaform.mokaformserver.common.jwt.JwtService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
@@ -35,16 +36,19 @@ public class UserController {
     private final UserService userService;
     private final SurveyService surveyService;
     private final AnswerService answerService;
+    private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
 
     public UserController(UserService userService,
                           SurveyService surveyService,
                           AnswerService answerService,
+                          JwtService jwtService,
                           AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.surveyService = surveyService;
         this.answerService = answerService;
+        this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
     }
 
@@ -154,6 +158,15 @@ public class UserController {
                 .body(ApiResponse.builder()
                         .message("나의 정보 조회가 성공하였습니다.")
                         .data(response)
+                        .build());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(@AuthenticationPrincipal JwtAuthentication authentication) {
+        jwtService.logout(authentication.accessToken);
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("로그아웃을 성공하였습니다.")
                         .build());
     }
 }

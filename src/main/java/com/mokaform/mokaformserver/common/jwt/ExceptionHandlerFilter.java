@@ -3,7 +3,9 @@ package com.mokaform.mokaformserver.common.jwt;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mokaform.mokaformserver.common.exception.AuthException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.ErrorCode;
 import com.mokaform.mokaformserver.common.exception.response.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +32,16 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         } catch (TokenExpiredException e) {
             log.warn("AccessToken 유효기한 만료되었습니다. {}", e.getMessage());
             setErrorResponse(response, CommonErrorCode.ACCESS_TOKEN_EXPIRED);
+        } catch (AuthException e) {
+            log.warn("AccessToken 로그아웃 처리되었습니다. {}", e.getMessage());
+            setErrorResponse(response, e.getErrorCode());
         } catch (JWTVerificationException e) {
             log.warn("Jwt processing failed: {}", e.getMessage());
             setErrorResponse(response, CommonErrorCode.ILLEGAL_TOKEN);
         }
     }
 
-    public void setErrorResponse(HttpServletResponse response, CommonErrorCode errorCode)
+    public void setErrorResponse(HttpServletResponse response, ErrorCode errorCode)
             throws IOException {
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json");
