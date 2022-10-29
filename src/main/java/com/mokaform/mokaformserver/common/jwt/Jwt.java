@@ -63,10 +63,10 @@ public final class Jwt {
         return new Claims(jwtVerifier.verify(token));
     }
 
-//    public Boolean isExpiredToken(String accessToken) {
-//        DecodedJWT decodedJWT = com.auth0.jwt.JWT.decode(accessToken);
-//        return decodedJWT.getExpiresAt().after(new Date());
-//    }
+    public Boolean isExpiredToken(String accessToken) {
+        DecodedJWT decodedJWT = com.auth0.jwt.JWT.decode(accessToken);
+        return decodedJWT.getExpiresAt().before(new Date());
+    }
 
     public String getIssuer() {
         return issuer;
