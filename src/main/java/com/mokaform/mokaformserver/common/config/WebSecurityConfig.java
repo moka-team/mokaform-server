@@ -87,11 +87,6 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(Jwt jwt) {
-        return new JwtAuthenticationFilter(jwtConfig.getAccessTokenHeader(), jwt);
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
