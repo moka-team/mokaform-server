@@ -18,6 +18,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Getter
 public class UserGetResponse {
 
+    private final Long userId;
+
     private final String email;
 
     private final String nickname;
@@ -33,6 +35,7 @@ public class UserGetResponse {
     private final List<Category> categories;
 
     public UserGetResponse(User user, List<PreferenceCategory> categories) {
+        this.userId = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();
         this.ageGroup = user.getAgeGroup();
