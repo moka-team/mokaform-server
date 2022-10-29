@@ -1,6 +1,7 @@
 package com.mokaform.mokaformserver.common.jwt;
 
 import com.mokaform.mokaformserver.common.util.RedisService;
+import com.mokaform.mokaformserver.common.util.constant.RedisConstants;
 import com.mokaform.mokaformserver.user.domain.User;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.springframework.dao.DataAccessException;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 
@@ -73,7 +75,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 .map(GrantedAuthority::getAuthority)
                 .toArray(String[]::new);
         String token = jwt.signRefreshToken(Jwt.Claims.from(email, roles));
-        saveToken(email, token, jwt.getRefreshTokenExpirySeconds());
+        saveToken(MessageFormat
+                        .format("{0}{1}",
+                                RedisConstants.LOGIN.getPrefix(),
+                                email),
+                token,
+                jwt.getRefreshTokenExpirySeconds());
         return token;
     }
 
