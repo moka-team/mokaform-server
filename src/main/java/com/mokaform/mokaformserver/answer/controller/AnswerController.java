@@ -5,6 +5,7 @@ import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,7 +29,7 @@ public class AnswerController {
     @Operation(summary = "설문 답변 등록", description = "설문의 답변을 등록하는 API입니다.")
     @PostMapping
     public ResponseEntity<ApiResponse> createAnswer(@RequestBody @Valid AnswerCreateRequest request,
-                                                    @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         answerCreateService.createAnswer(request, authentication.email);
 
         return ResponseEntity.ok()

@@ -19,6 +19,7 @@ import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -70,7 +71,7 @@ public class UserController {
     @Operation(summary = "내가 작성한 설문 다건 조회", description = "내가 작성한 설문 다건 조회하는 API입니다.")
     @GetMapping("/my/surveys")
     public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                                          @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                          @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -85,7 +86,7 @@ public class UserController {
     @Operation(summary = "내가 참여한 설문 다건 조회", description = "내가 참여한 설문 다건 조회하는 API입니다.")
     @GetMapping("/my/submitted-surveys")
     public ResponseEntity<ApiResponse<SubmittedSurveyInfoResponse>> getSubmittedSurveyInfos(@PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
-                                                                                            @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                                            @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -100,7 +101,7 @@ public class UserController {
     @Operation(summary = "내가 참여한 설문 상세 조회", description = "내가 참여한 설문 상세 조회하는 API입니다.")
     @GetMapping("/my/submitted-surveys/{sharingKey}")
     public ResponseEntity<ApiResponse<AnswerDetailResponse>> getSubmittedSurveyDetail(@PathVariable(value = "sharingKey") String sharingKey,
-                                                                                      @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                                      @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         AnswerDetailResponse response = answerService.getAnswerDetail(sharingKey, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -115,7 +116,7 @@ public class UserController {
     @Operation(summary = "내가 생성한 설문의 통계 결과 조회", description = "내가 생성한 설문의 통계 결과 조회하는 API입니다.")
     @GetMapping("/my/surveys/{surveyId}/stats")
     public ResponseEntity<ApiResponse<AnswerStatsResponse>> getAnswerStats(@PathVariable(value = "surveyId") Long surveyId,
-                                                                           @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                           @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         AnswerStatsResponse response = answerService.getAnswerStats(surveyId, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -175,7 +176,7 @@ public class UserController {
 
     @Operation(summary = "나의 정보 조회", description = "나의 정보 조회하는 API입니다.")
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@AuthenticationPrincipal JwtAuthentication authentication) {
+    public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         UserGetResponse response = userService.getUserInfo(authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -189,7 +190,7 @@ public class UserController {
 
     @Operation(summary = "로그아웃", description = "로그아웃하는 API입니다.")
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse> logout(@AuthenticationPrincipal JwtAuthentication authentication) {
+    public ResponseEntity<ApiResponse> logout(@Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         jwtService.logout(authentication.accessToken);
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()

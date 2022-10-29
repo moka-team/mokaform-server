@@ -12,6 +12,7 @@ import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -37,7 +38,7 @@ public class SurveyController {
     @Operation(summary = "설문 생성", description = "설문을 생성하는 API입니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<SurveyCreateResponse>> createSurvey(@RequestBody @Valid SurveyCreateRequest request,
-                                                                          @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                          @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         SurveyCreateResponse response = surveyService.createSurvey(request, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -53,7 +54,7 @@ public class SurveyController {
     @GetMapping
     public ResponseEntity<ApiResponse<SurveyDetailsResponse>> getSurveyDetails(@RequestParam(required = false) Long surveyId,
                                                                                @RequestParam(required = false) String sharingKey,
-                                                                               @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                               @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         SurveyDetailsResponse response = null;
         if ((Objects.nonNull(surveyId) && Objects.nonNull(sharingKey))
                 || (Objects.isNull(surveyId) && Objects.isNull(sharingKey))) {
@@ -90,7 +91,7 @@ public class SurveyController {
     @Operation(summary = "설문 삭제", description = "설문을 삭제하는 API입니다.")
     @DeleteMapping("/{surveyId}")
     public ResponseEntity<ApiResponse<SurveyDeleteResponse>> removeSurvey(@PathVariable(value = "surveyId") Long surveyId,
-                                                                          @AuthenticationPrincipal JwtAuthentication authentication) {
+                                                                          @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         SurveyDeleteResponse response = surveyService.deleteSurvey(surveyId, authentication.email);
 
         ApiResponse apiResponse = ApiResponse.builder()
