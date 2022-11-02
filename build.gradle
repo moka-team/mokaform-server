@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.mokaform'
-version = '0.0.13-SNAPSHOT'
+version = '0.0.13-SNAPSHOT-0.0.1-TEST'
 sourceCompatibility = '17'
 
 configurations {
