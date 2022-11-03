@@ -21,3 +21,5 @@ spring:
   profiles:
     include:
       - springdoc
+      - develop
+      - jwt-dev
