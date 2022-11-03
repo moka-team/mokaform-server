@@ -30,16 +30,29 @@ spring:
       enabled: true
       max-file-size: 5MB
       max-request-size: 50MB
-  jwt:
-    issuer: test
-    client-secret: TESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtest
-    access-token-header: accessToken
-    access-token-expiry-seconds: 90
-    refresh-token-header: refreshToken
-    refresh-token-expiry-seconds: 180
-#  profiles:
-#    include:
-#      - springdoc
+
+jwt:
+  issuer: test
+  client-secret: TESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtest
+  access-token-header: accessToken
+  access-token-expiry-seconds: 90
+  refresh-token-header: refreshToken
+  refresh-token-expiry-seconds: 180
+
+springdoc:
+  version: 1.0
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    doc-expansion: none
+  paths-to-match:
+    - /api/v1/**
+
 logging:
   level:
     org:
