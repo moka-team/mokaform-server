@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -42,37 +43,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            getAccessToken(request).ifPresent(token -> {
-                if (jwtService.isRequiredAuthorization(request.getRequestURI())) {
-                    try {
-                        Jwt.Claims claims = jwtService.verifyAccessToken(token);
-                        log.debug("Jwt parse result: {}", claims);
+        if (!CorsUtils.isPreFlightRequest(request)) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                getAccessToken(request).ifPresent(token -> {
+                    if (jwtService.isRequiredAuthorization(request.getRequestURI())) {
+                        try {
+                            Jwt.Claims claims = jwtService.verifyAccessToken(token);
+                            log.debug("Jwt parse result: {}", claims);
 
-                        String email = claims.email;
-                        List<GrantedAuthority> authorities = getAuthorities(claims);
+                            String email = claims.email;
+                            List<GrantedAuthority> authorities = getAuthorities(claims);
 
-                        if (StringUtils.hasText(email) && authorities.size() > 0) {
-                            JwtAuthenticationToken authentication =
-                                    new JwtAuthenticationToken(new JwtAuthentication(token, email), null, authorities);
-                            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                            if (StringUtils.hasText(email) && authorities.size() > 0) {
+                                JwtAuthenticationToken authentication =
+                                        new JwtAuthenticationToken(new JwtAuthentication(token, email), null, authorities);
+                                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                            }
+                        } catch (TokenExpiredException e) {
+                            log.warn("만료된 토큰입니다. {}", e.getMessage());
+                            throw e;
+                        } catch (AuthException e) {
+                            log.warn("로그아웃 처리된 토큰입니다. {}", e.getMessage());
+                            throw e;
+                        } catch (Exception e) {
+                            log.warn("Jwt processing failed: {}", e.getMessage());
+                            throw e;
                         }
-                    } catch (TokenExpiredException e) {
-                        log.warn("만료된 토큰입니다. {}", e.getMessage());
-                        throw e;
-                    } catch (AuthException e) {
-                        log.warn("로그아웃 처리된 토큰입니다. {}", e.getMessage());
-                        throw e;
-                    } catch (Exception e) {
-                        log.warn("Jwt processing failed: {}", e.getMessage());
-                        throw e;
                     }
-                }
-            });
-        } else {
-            log.debug("SecurityContextHolder not populated with security token, as it already contained: '{}'",
-                    SecurityContextHolder.getContext().getAuthentication());
+                });
+            } else {
+                log.debug("SecurityContextHolder not populated with security token, as it already contained: '{}'",
+                        SecurityContextHolder.getContext().getAuthentication());
+            }
         }
 
         chain.doFilter(request, response);
