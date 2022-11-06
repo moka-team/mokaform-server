@@ -12,7 +12,6 @@ import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
-import com.mokaform.mokaformserver.user.dto.request.TokenReissueRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
@@ -26,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -192,12 +192,12 @@ public class UserController {
 
     @Operation(summary = "토큰 재발급", description = "access token을 재발급하는 API입니다.")
     @PostMapping("/token/reissue")
-    public ResponseEntity<ApiResponse> reissueAccessToken(@RequestBody @Valid TokenReissueRequest request) {
-        String newAccessToken = jwtService.reissueAccessToken(request.getAccessToken(), request.getRefreshToken());
+    public ResponseEntity<ApiResponse> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        jwtService.reissueAccessToken(request, response);
+
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("토큰이 재발급되었습니다.")
-                        .data(newAccessToken)
                         .build());
     }
 }
