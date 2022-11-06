@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -71,12 +72,12 @@ public class JwtService {
         if (!jwt.isExpiredToken(accessToken)) {
             throw new ApiException(CommonErrorCode.NOT_EXPIRED_ACCESS_TOKEN);
         }
-        
+
         Cookie cookie = CookieUtils.getCookie(request, jwt.getRefreshTokenHeader())
                 .orElseThrow(() -> new ApiException(CommonErrorCode.REFRESH_TOKEN_NOT_EXIST));
         String refreshToken = cookie.getValue();
 
-        Jwt.Claims claims = getClaims(refreshToken);
+        Jwt.Claims claims = getClaims(accessToken);
         checkRefreshToken(claims.email, refreshToken);
         String newAccessToken = getNewAccessToken(claims.email, claims.roles);
         response.setHeader("Authorization", "Bearer " + newAccessToken);
@@ -92,6 +93,19 @@ public class JwtService {
         if (values != null) {
             throw new AuthException(CommonErrorCode.LOGGED_OUT_ACCESS_TOKEN);
         }
+    }
+
+    public boolean isRequiredAuthorization(String requestURI) {
+        String[] notRequiredAuth = {
+                "/api/v1/users/signup",
+                "/api/v1/users/check-email-duplication",
+                "/api/v1/users/check-nickname-duplication",
+                "/api/v1/users/login",
+                "/api/v1/users/token/reissue",
+                "/api/v1/survey/list"
+        };
+
+        return !Arrays.asList(notRequiredAuth).contains(requestURI);
     }
 
     private void checkRefreshToken(String email, String refreshToken) {
