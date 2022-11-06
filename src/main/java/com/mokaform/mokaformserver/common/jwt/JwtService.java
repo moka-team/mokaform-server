@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -92,6 +93,19 @@ public class JwtService {
         if (values != null) {
             throw new AuthException(CommonErrorCode.LOGGED_OUT_ACCESS_TOKEN);
         }
+    }
+
+    public boolean isRequiredAuthorization(String requestURI) {
+        String[] notRequiredAuth = {
+                "/api/v1/users/signup",
+                "/api/v1/users/check-email-duplication",
+                "/api/v1/users/check-nickname-duplication",
+                "/api/v1/users/login",
+                "/api/v1/users/token/reissue",
+                "/api/v1/survey/list"
+        };
+
+        return !Arrays.asList(notRequiredAuth).contains(requestURI);
     }
 
     private void checkRefreshToken(String email, String refreshToken) {

@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             getAccessToken(request).ifPresent(token -> {
-                if (!request.getRequestURI().contains("/token/reissue")) {
+                if (jwtService.isRequiredAuthorization(request.getRequestURI())) {
                     try {
                         Jwt.Claims claims = jwtService.verifyAccessToken(token);
                         log.debug("Jwt parse result: {}", claims);
