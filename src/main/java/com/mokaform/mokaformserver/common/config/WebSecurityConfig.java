@@ -1,10 +1,8 @@
 package com.mokaform.mokaformserver.common.config;
 
-import com.mokaform.mokaformserver.common.jwt.ExceptionHandlerFilter;
-import com.mokaform.mokaformserver.common.jwt.Jwt;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationFilter;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationProvider;
+import com.mokaform.mokaformserver.common.jwt.*;
 import com.mokaform.mokaformserver.common.util.RedisService;
+import com.mokaform.mokaformserver.user.domain.enums.RoleName;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,11 +70,16 @@ public class WebSecurityConfig {
         return new Jwt(
                 jwtConfig.getIssuer(),
                 jwtConfig.getClientSecret(),
-//                jwtConfig.getAccessTokenHeader(),
-//                jwtConfig.getRefreshTokenHeader(),
+                jwtConfig.getAccessTokenHeader(),
+                jwtConfig.getRefreshTokenHeader(),
                 jwtConfig.getAccessTokenExpirySeconds(),
                 jwtConfig.getRefreshTokenExpirySeconds()
         );
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService) {
+        return new JwtAuthenticationFilter(jwtService);
     }
 
     @Bean

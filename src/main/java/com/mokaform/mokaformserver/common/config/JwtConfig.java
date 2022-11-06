@@ -1,11 +1,8 @@
 package com.mokaform.mokaformserver.common.config;
 
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationFilter;
-import com.mokaform.mokaformserver.common.jwt.JwtService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -40,8 +37,4 @@ public class JwtConfig {
                 .toString();
     }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService) {
-        return new JwtAuthenticationFilter(this.accessTokenHeader, jwtService);
-    }
 }

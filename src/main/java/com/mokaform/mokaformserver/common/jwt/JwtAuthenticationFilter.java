@@ -29,13 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final String accessHeaderKey;
-
     private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(String accessHeaderKey,
-                                   JwtService jwtService) {
-        this.accessHeaderKey = accessHeaderKey;
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
@@ -81,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Optional<String> getAccessToken(HttpServletRequest request) {
-        String token = request.getHeader(accessHeaderKey);
+        String token = getJwtFromRequest(request);
         if (isNotBlank(token)) {
             log.debug("Jwt access token detected: {}", token);
             try {
@@ -91,6 +87,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         return Optional.empty();
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (isNotBlank(bearerToken)
+                && bearerToken.startsWith("Bearer")) {
+            log.debug("Bearer Token detected: {}", bearerToken);
+            return bearerToken.substring("Bearer ".length());
+        }
+        return null;
     }
 
     private List<GrantedAuthority> getAuthorities(Jwt.Claims claims) {
