@@ -11,7 +11,9 @@ public enum CommonErrorCode implements ErrorCode {
     ILLEGAL_TOKEN("C006", HttpStatus.FORBIDDEN, "Illegal token"),
     LOGGED_OUT_ACCESS_TOKEN("C007", HttpStatus.BAD_REQUEST, "This access token has been logged out."),
     NOT_EXPIRED_ACCESS_TOKEN("C008", HttpStatus.BAD_REQUEST, "Access token is not expired"),
-    ILLEGAL_REFRESH_TOKEN("C009", HttpStatus.FORBIDDEN, "Illegal refresh token. Login required");
+    ILLEGAL_REFRESH_TOKEN("C009", HttpStatus.FORBIDDEN, "Illegal refresh token. Login required"),
+    ACCESS_TOKEN_NOT_EXIST("C010", HttpStatus.BAD_REQUEST, "Access token in header required."),
+    REFRESH_TOKEN_NOT_EXIST("C011", HttpStatus.BAD_REQUEST, "Refresh token in cookie required.");
 
     private final String code;
     private final HttpStatus httpStatus;
