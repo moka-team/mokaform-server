@@ -21,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://test.mokaform.site")
                 .allowedMethods("*")
                 .allowedHeaders("*")
+                .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
 }
