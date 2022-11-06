@@ -4,10 +4,15 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.AuthException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.util.CookieUtils;
 import com.mokaform.mokaformserver.common.util.RedisService;
 import com.mokaform.mokaformserver.common.util.constant.RedisConstants;
+import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -19,9 +24,12 @@ public class JwtService {
 
     private final RedisService redisService;
 
-    public JwtService(Jwt jwt, RedisService redisService) {
+    private final AuthenticationManager authenticationManager;
+
+    public JwtService(Jwt jwt, RedisService redisService, AuthenticationManager authenticationManager) {
         this.jwt = jwt;
         this.redisService = redisService;
+        this.authenticationManager = authenticationManager;
     }
 
     public Jwt.Claims verifyAccessToken(String accessToken) {
@@ -31,6 +39,17 @@ public class JwtService {
         }
 
         return verify(accessToken);
+    }
+
+    public void login(LocalLoginRequest request, HttpServletResponse response) {
+        JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(), request.getPassword());
+        Authentication resultToken = authenticationManager.authenticate(authToken);
+        JwtAuthentication authentication = (JwtAuthentication) resultToken.getPrincipal();
+        String accessToken = authentication.accessToken;
+        String refreshToken = (String) resultToken.getDetails();
+
+        CookieUtils.addJWTToCookie(response, jwt.getRefreshTokenHeader(), refreshToken);
+        response.setHeader("Authorization", "Bearer " + accessToken);
     }
 
     public void logout(String token) {

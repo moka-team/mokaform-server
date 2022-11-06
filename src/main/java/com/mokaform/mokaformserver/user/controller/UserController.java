@@ -4,7 +4,6 @@ import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
 import com.mokaform.mokaformserver.answer.dto.response.stat.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationToken;
 import com.mokaform.mokaformserver.common.jwt.JwtService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
@@ -24,11 +23,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -43,18 +41,14 @@ public class UserController {
     private final AnswerService answerService;
     private final JwtService jwtService;
 
-    private final AuthenticationManager authenticationManager;
-
     public UserController(UserService userService,
                           SurveyService surveyService,
                           AnswerService answerService,
-                          JwtService jwtService,
-                          AuthenticationManager authenticationManager) {
+                          JwtService jwtService) {
         this.userService = userService;
         this.surveyService = surveyService;
         this.answerService = answerService;
         this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
     }
 
     @Operation(summary = "회원가입", description = "회원가입 API입니다.")
@@ -160,16 +154,12 @@ public class UserController {
 
     @Operation(summary = "로그인", description = "로그인하는 API입니다.")
     @PostMapping(path = "/login")
-    public ResponseEntity<ApiResponse<LocalLoginResponse>> login(@RequestBody @Valid LocalLoginRequest request) {
-        JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(), request.getPassword());
-        Authentication resultToken = authenticationManager.authenticate(authToken);
-        JwtAuthentication authentication = (JwtAuthentication) resultToken.getPrincipal();
-        String refreshToken = (String) resultToken.getDetails();
-        LocalLoginResponse response = new LocalLoginResponse(authentication.accessToken, refreshToken, authentication.email);
+    public ResponseEntity<ApiResponse<LocalLoginResponse>> login(@RequestBody @Valid LocalLoginRequest request,
+                                                                 HttpServletResponse response) {
+        jwtService.login(request, response);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("로그인 성공하였습니다.")
-                .data(response)
                 .build();
 
         return ResponseEntity.ok()
