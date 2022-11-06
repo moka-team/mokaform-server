@@ -105,6 +105,10 @@ public class WebSecurityConfig {
                                            JwtAuthenticationFilter jwtAuthenticationFilter,
                                            AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         http.authorizeRequests()
+                .antMatchers("/api/v1/survey/list").permitAll()
+                .antMatchers("/api/v1/users/my/**",
+                        "/api/v1/survey/**",
+                        "/api/v1/answer/**").hasAnyAuthority(RoleName.USER.name())
                 .anyRequest().permitAll()
                 .and()
                 /**
