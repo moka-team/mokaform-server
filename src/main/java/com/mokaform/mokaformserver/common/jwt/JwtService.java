@@ -71,12 +71,12 @@ public class JwtService {
         if (!jwt.isExpiredToken(accessToken)) {
             throw new ApiException(CommonErrorCode.NOT_EXPIRED_ACCESS_TOKEN);
         }
-        
+
         Cookie cookie = CookieUtils.getCookie(request, jwt.getRefreshTokenHeader())
                 .orElseThrow(() -> new ApiException(CommonErrorCode.REFRESH_TOKEN_NOT_EXIST));
         String refreshToken = cookie.getValue();
 
-        Jwt.Claims claims = getClaims(refreshToken);
+        Jwt.Claims claims = getClaims(accessToken);
         checkRefreshToken(claims.email, refreshToken);
         String newAccessToken = getNewAccessToken(claims.email, claims.roles);
         response.setHeader("Authorization", "Bearer " + newAccessToken);
