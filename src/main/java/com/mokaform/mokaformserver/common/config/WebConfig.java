@@ -20,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://www.mokaform.site")
                 .allowedMethods("*")
                 .allowedHeaders("*")
-                .exposedHeaders("Authorization")
+                .exposedHeaders("Authorization", "Set-Cookie", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
                 .allowCredentials(true);
     }
 }
