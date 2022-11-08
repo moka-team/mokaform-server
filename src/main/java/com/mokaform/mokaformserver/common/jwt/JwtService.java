@@ -104,6 +104,9 @@ public class JwtService {
                 "/api/v1/users/token/reissue",
                 "/api/v1/users/signup/email-verification/send",
                 "/api/v1/users/signup/email-verification/check",
+                "/api/v1/users/reset-password/email-verification/send",
+                "/api/v1/users/reset-password/email-verification/check",
+                "/api/v1/users/reset-password",
                 "/api/v1/survey/list"
         };
 

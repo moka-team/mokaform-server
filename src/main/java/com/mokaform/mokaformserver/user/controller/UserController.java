@@ -12,6 +12,7 @@ import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoRespon
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
+import com.mokaform.mokaformserver.user.dto.request.ResetPasswordRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
@@ -224,6 +225,37 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("인증번호 확인이 완료되었습니다.")
+                        .build());
+    }
+
+    @PostMapping("/reset-password/email-verification/send")
+    public ResponseEntity<ApiResponse> sendResetPasswordVerificationEmail(@RequestParam(value = "email") String email) {
+        emailService.sendVerificationCode(EmailType.RESET_PASSWORD, email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호가 포함된 이메일 전송이 완료되었습니다.")
+                        .build());
+    }
+
+    @GetMapping("/reset-password/email-verification/check")
+    public ResponseEntity<ApiResponse> checkResetPasswordVerificationEmail(@RequestParam(value = "email") String email,
+                                                                           @RequestParam(value = "code") String code) {
+        emailService.checkVerificationCode(EmailType.RESET_PASSWORD, email, code);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호 확인이 완료되었습니다.")
+                        .build());
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userService.updatePassword(request);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("비밀번호 재설정이 완료되었습니다.")
                         .build());
     }
 }
