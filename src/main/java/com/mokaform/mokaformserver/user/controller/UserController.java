@@ -207,6 +207,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "회원가입 - 이메일 검증 - 전송", description = "회원가입할 때, 이메일 검증을 위해 이메일을 전송하는 API입니다.")
     @PostMapping("/signup/email-verification/send")
     public ResponseEntity<ApiResponse> sendSignUpVerificationEmail(@RequestParam(value = "email") String email) {
         emailService.sendVerificationCode(EmailType.SIGN_IN, email);
@@ -217,6 +218,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "회원가입 - 이메일 검증 - 인증번호 확인", description = "회원가입할 때, 인증번호를 확인하는 API입니다.")
     @GetMapping("/signup/email-verification/check")
     public ResponseEntity<ApiResponse> checkSignUpVerificationEmail(@RequestParam(value = "email") String email,
                                                                     @RequestParam(value = "code") String code) {
@@ -228,6 +230,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "비밀번호 재설정 - 이메일 검증 - 전송", description = "비밀번호 재설정할 때, 이메일 검증을 위해 이메일을 전송하는 API입니다.")
     @PostMapping("/reset-password/email-verification/send")
     public ResponseEntity<ApiResponse> sendResetPasswordVerificationEmail(@RequestParam(value = "email") String email) {
         emailService.sendVerificationCode(EmailType.RESET_PASSWORD, email);
@@ -238,6 +241,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "비밀번호 재설정 - 이메일 검증 - 인증번호 확인", description = "비밀번호 재설정할 때, 인증번호를 확인하는 API입니다.")
     @GetMapping("/reset-password/email-verification/check")
     public ResponseEntity<ApiResponse> checkResetPasswordVerificationEmail(@RequestParam(value = "email") String email,
                                                                            @RequestParam(value = "code") String code) {
@@ -249,6 +253,7 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "비밀번호 재설정", description = "비밀전호를 재설정하는 API입니다.")
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
         userService.updatePassword(request);
