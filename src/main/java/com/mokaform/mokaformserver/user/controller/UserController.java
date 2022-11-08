@@ -18,6 +18,9 @@ import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
 import com.mokaform.mokaformserver.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -153,6 +156,14 @@ public class UserController {
     }
 
     @Operation(summary = "로그인", description = "로그인하는 API입니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+                    headers = @Header(
+                            name = "Set-Cookie",
+                            schema = @Schema(
+                                    type = "String",
+                                    example = "refreshToken=${REFRESH_TOKEN}; Max-Age=1209599; Expires=Tue, 22-Nov-2022 09:07:55 GMT; Path=/; Secure; HttpOnly")))
+    })
     @PostMapping(path = "/login")
     public ResponseEntity<ApiResponse<LocalLoginResponse>> login(@RequestBody @Valid LocalLoginRequest request,
                                                                  HttpServletResponse response) {
