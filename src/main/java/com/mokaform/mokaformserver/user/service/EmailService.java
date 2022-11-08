@@ -60,7 +60,7 @@ public class EmailService {
             log.debug(e.getMessage());
             throw new ApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        saveVerificationCode(EmailType.SIGN_IN, email);
+        saveVerificationCode(type, email);
     }
 
     public void checkVerificationCode(EmailType type, String email, String code) {
