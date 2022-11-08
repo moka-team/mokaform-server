@@ -81,8 +81,8 @@ public class EmailService {
 
         // 메일 내용 메일의 subtype을 html로 지정하여 html문법 사용 가능
         String msg = new StringBuilder()
-                .append("<h1 style=\"font-size: 30px; padding-right: 30px; padding-left: 30px;\">이메일 주소 확인</h1>")
-                .append("<p style=\\\"font-size: 17px; padding-right: 30px; padding-left: 30px;\\\">아래 확인 코드를 회원가입 화면에서 입력해주세요.</p>\"")
+                .append("<h3 style=\"font-size: 20px; padding-right: 30px; padding-left: 30px;\">이메일 주소 확인</h3>")
+                .append("<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">아래 확인 코드를 입력해주세요.</p>")
                 .append("<div style=\"padding-right: 30px; padding-left: 30px; margin: 32px 0 40px;\"><table style=\"border-collapse: collapse; border: 0; background-color: #F4F4F4; height: 70px; table-layout: fixed; word-wrap: break-word; border-radius: 6px;\"><tbody><tr><td style=\"text-align: center; vertical-align: middle; font-size: 30px;\">")
                 .append(verificationCode)
                 .append("</td></tr></tbody></table></div>")
