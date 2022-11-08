@@ -11,6 +11,7 @@ import com.mokaform.mokaformserver.user.domain.enums.AgeGroup;
 import com.mokaform.mokaformserver.user.domain.enums.Gender;
 import com.mokaform.mokaformserver.user.domain.enums.Job;
 import com.mokaform.mokaformserver.user.domain.enums.RoleName;
+import com.mokaform.mokaformserver.user.dto.request.ResetPasswordRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
@@ -98,6 +99,13 @@ public class UserService {
         List<PreferenceCategory> preferenceCategories = preferenceCategoryRepository.findByUserId(user.getId());
 
         return new UserGetResponse(user, preferenceCategories);
+    }
+
+    @Transactional
+    public void updatePassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+        user.updatePassword(passwordEncoder.encode(request.getPassword()));
     }
 
 }
