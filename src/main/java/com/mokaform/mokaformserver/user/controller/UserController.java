@@ -7,6 +7,7 @@ import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.jwt.JwtService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
+import com.mokaform.mokaformserver.common.util.constant.EmailType;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
@@ -15,6 +16,7 @@ import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
+import com.mokaform.mokaformserver.user.service.EmailService;
 import com.mokaform.mokaformserver.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,15 +42,18 @@ public class UserController {
     private final SurveyService surveyService;
     private final AnswerService answerService;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     public UserController(UserService userService,
                           SurveyService surveyService,
                           AnswerService answerService,
-                          JwtService jwtService) {
+                          JwtService jwtService,
+                          EmailService emailService) {
         this.userService = userService;
         this.surveyService = surveyService;
         this.answerService = answerService;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
     @Operation(summary = "회원가입", description = "회원가입 API입니다.")
@@ -198,6 +203,27 @@ public class UserController {
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("토큰이 재발급되었습니다.")
+                        .build());
+    }
+
+    @PostMapping("/email-verification/send")
+    public ResponseEntity<ApiResponse> sendVerificationEmail(@RequestParam(value = "email") String email) {
+        emailService.sendVerificationCode(EmailType.SIGN_IN, email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호가 포함된 이메일 전송이 완료되었습니다.")
+                        .build());
+    }
+
+    @GetMapping("/email-verification/check")
+    public ResponseEntity<ApiResponse> checkVerificationEmail(@RequestParam(value = "email") String email,
+                                                              @RequestParam(value = "code") String code) {
+        emailService.checkVerificationCode(EmailType.SIGN_IN, email, code);
+        
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호 확인이 완료되었습니다.")
                         .build());
     }
 }
