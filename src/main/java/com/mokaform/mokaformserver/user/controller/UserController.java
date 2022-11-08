@@ -206,8 +206,8 @@ public class UserController {
                         .build());
     }
 
-    @PostMapping("/email-verification/send")
-    public ResponseEntity<ApiResponse> sendVerificationEmail(@RequestParam(value = "email") String email) {
+    @PostMapping("/signup/email-verification/send")
+    public ResponseEntity<ApiResponse> sendSignUpVerificationEmail(@RequestParam(value = "email") String email) {
         emailService.sendVerificationCode(EmailType.SIGN_IN, email);
 
         return ResponseEntity.ok()
@@ -216,11 +216,11 @@ public class UserController {
                         .build());
     }
 
-    @GetMapping("/email-verification/check")
-    public ResponseEntity<ApiResponse> checkVerificationEmail(@RequestParam(value = "email") String email,
-                                                              @RequestParam(value = "code") String code) {
+    @GetMapping("/signup/email-verification/check")
+    public ResponseEntity<ApiResponse> checkSignUpVerificationEmail(@RequestParam(value = "email") String email,
+                                                                    @RequestParam(value = "code") String code) {
         emailService.checkVerificationCode(EmailType.SIGN_IN, email, code);
-        
+
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("인증번호 확인이 완료되었습니다.")
