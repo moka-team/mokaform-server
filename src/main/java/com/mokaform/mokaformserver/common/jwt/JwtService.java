@@ -102,8 +102,8 @@ public class JwtService {
                 "/api/v1/users/check-nickname-duplication",
                 "/api/v1/users/login",
                 "/api/v1/users/token/reissue",
-                "/api/v1/users/email-verification/send",
-                "/api/v1/users/email-verification/check",
+                "/api/v1/users/signup/email-verification/send",
+                "/api/v1/users/signup/email-verification/check",
                 "/api/v1/survey/list"
         };
 
