@@ -2,7 +2,8 @@ package com.mokaform.mokaformserver.common.util.constant;
 
 public enum RedisConstants {
     LOGOUT("auth:logout:access-token:"),
-    LOGIN("auth:login:refresh-token:");
+    LOGIN("auth:login:refresh-token:"),
+    EMAIL_VERIFICATION("auth:email-verification");
 
     private final String prefix;
 

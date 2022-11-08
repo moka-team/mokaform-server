@@ -98,4 +98,8 @@ public class User extends BaseEntity {
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(toList());
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
