@@ -5,6 +5,7 @@ import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.exception.errorcode.UserErrorCode;
 import com.mokaform.mokaformserver.common.util.RedisService;
+import com.mokaform.mokaformserver.common.util.UserUtilService;
 import com.mokaform.mokaformserver.common.util.constant.EmailType;
 import com.mokaform.mokaformserver.common.util.constant.RedisConstants;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -34,12 +35,16 @@ public class EmailService {
 
     private final RedisService redisService;
 
+    private final UserUtilService userUtilService;
+
     public EmailService(MailConfig mailConfig,
                         JavaMailSender javaMailSender,
-                        RedisService redisService) {
+                        RedisService redisService,
+                        UserUtilService userUtilService) {
         this.mailConfig = mailConfig;
         this.javaMailSender = javaMailSender;
         this.redisService = redisService;
+        this.userUtilService = userUtilService;
         this.verificationCode = RandomStringUtils.random(6, true, true);
     }
 
@@ -50,6 +55,10 @@ public class EmailService {
         bean으로 등록해둔 javaMailSender 객체를 사용하여 이메일 send
      */
     public void sendVerificationCode(EmailType type, String email) {
+        if (type.equals(EmailType.RESET_PASSWORD)) {
+            userUtilService.checkUser(email);
+        }
+        
         try {
             MimeMessage message = createMessage(type.getSubject(), email);
             javaMailSender.send(message); // 메일 발송
