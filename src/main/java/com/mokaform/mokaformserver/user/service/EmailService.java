@@ -31,8 +31,6 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    private final String verificationCode;
-
     private final RedisService redisService;
 
     private final UserUtilService userUtilService;
@@ -45,7 +43,6 @@ public class EmailService {
         this.javaMailSender = javaMailSender;
         this.redisService = redisService;
         this.userUtilService = userUtilService;
-        this.verificationCode = RandomStringUtils.random(6, true, true);
     }
 
     /*
@@ -58,9 +55,11 @@ public class EmailService {
         if (type.equals(EmailType.RESET_PASSWORD)) {
             userUtilService.checkUser(email);
         }
-        
+
+        String verificationCode = RandomStringUtils.random(6, true, true);
+
         try {
-            MimeMessage message = createMessage(type.getSubject(), email);
+            MimeMessage message = createMessage(type.getSubject(), email, verificationCode);
             javaMailSender.send(message); // 메일 발송
         } catch (MailException e) {
             log.debug(e.getMessage());
@@ -69,7 +68,7 @@ public class EmailService {
             log.debug(e.getMessage());
             throw new ApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        saveVerificationCode(type, email);
+        saveVerificationCode(type, email, verificationCode);
     }
 
     public void checkVerificationCode(EmailType type, String email, String code) {
@@ -80,20 +79,20 @@ public class EmailService {
         }
     }
 
-    private MimeMessage createMessage(String subject, String to) throws MessagingException, UnsupportedEncodingException {
+    private MimeMessage createMessage(String subject, String to, String code) throws MessagingException, UnsupportedEncodingException {
         log.info("보내는 대상 : " + to);
-        log.info("인증 번호 : " + this.verificationCode);
+        log.info("인증 번호 : " + code);
         MimeMessage message = javaMailSender.createMimeMessage();
 
         message.addRecipients(MimeMessage.RecipientType.TO, to); // to 보내는 대상
-        message.setSubject(subject); //메일 제목
+        message.setSubject(subject, "utf-8"); //메일 제목
 
         // 메일 내용 메일의 subtype을 html로 지정하여 html문법 사용 가능
         String msg = new StringBuilder()
                 .append("<h3 style=\"font-size: 20px; padding-right: 30px; padding-left: 30px;\">이메일 주소 확인</h3>")
                 .append("<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">아래 확인 코드를 입력해주세요.</p>")
                 .append("<div style=\"padding-right: 30px; padding-left: 30px; margin: 32px 0 40px;\"><table style=\"border-collapse: collapse; border: 0; background-color: #F4F4F4; height: 70px; table-layout: fixed; word-wrap: break-word; border-radius: 6px;\"><tbody><tr><td style=\"text-align: center; vertical-align: middle; font-size: 30px;\">")
-                .append(verificationCode)
+                .append(code)
                 .append("</td></tr></tbody></table></div>")
                 .toString();
 
@@ -103,14 +102,14 @@ public class EmailService {
         return message;
     }
 
-    private void saveVerificationCode(EmailType type, String email) {
+    private void saveVerificationCode(EmailType type, String email, String code) {
         deleteVerificationCode(type, email);
         redisService.setValues(new StringBuilder()
                         .append(RedisConstants.EMAIL_VERIFICATION.getPrefix())
                         .append(type.getRedisPrefix())
                         .append(email)
                         .toString(),
-                verificationCode,
+                code,
                 Duration.ofSeconds(mailConfig.getValidTime()));
     }
 
