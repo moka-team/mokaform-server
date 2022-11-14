@@ -6,6 +6,7 @@ import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
+import com.mokaform.mokaformserver.survey.dto.request.SurveyUpdateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
@@ -104,4 +105,17 @@ public class SurveyController {
                 .body(apiResponse);
     }
 
+    @PatchMapping("/{surveyId}")
+    public ResponseEntity<ApiResponse> updateSurvey(@PathVariable(value = "surveyId") Long surveyId,
+                                                    @RequestBody @Valid SurveyUpdateRequest request,
+                                                    @AuthenticationPrincipal JwtAuthentication authentication) {
+        surveyService.updateSurveyInfoAndQuestions(surveyId, authentication.email, request);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("설문 수정이 성공하였습니다.")
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
 }
