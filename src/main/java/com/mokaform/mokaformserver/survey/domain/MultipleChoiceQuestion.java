@@ -52,4 +52,17 @@ public class MultipleChoiceQuestion extends BaseEntity {
         this.question = question;
         question.getMultipleChoiceQuestions().add(this);
     }
+
+    public void unsetQuestion() {
+        if (Objects.nonNull(this.question)) {
+            this.question.getMultipleChoiceQuestions().remove(this);
+        }
+    }
+
+    public void updateMultipleChoiceQuestion(MultiQuestionType type, String content,
+                                             Long index) {
+        this.multiQuestionType = type;
+        this.multiQuestionContent = content;
+        this.multiQuestionIndex = index;
+    }
 }

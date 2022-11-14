@@ -41,4 +41,10 @@ public class SurveyCategory extends BaseEntity {
         this.survey = survey;
         survey.getCategories().add(this);
     }
+
+    public void unsetSurvey() {
+        if (Objects.nonNull(this.survey)) {
+            this.survey.getCategories().remove(this);
+        }
+    }
 }
