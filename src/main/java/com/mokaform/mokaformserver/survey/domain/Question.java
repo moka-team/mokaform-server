@@ -61,4 +61,12 @@ public class Question extends BaseEntity {
         this.survey = survey;
         survey.getQuestions().add(this);
     }
+
+    public void updateQuestion(Long index, String title,
+                               QuestionType type, Boolean isMultiAnswer) {
+        this.index = index;
+        this.title = title;
+        this.type = type;
+        this.isMultiAnswer = isMultiAnswer;
+    }
 }

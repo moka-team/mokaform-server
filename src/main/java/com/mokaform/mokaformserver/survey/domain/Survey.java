@@ -1,6 +1,8 @@
 package com.mokaform.mokaformserver.survey.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
+import com.mokaform.mokaformserver.common.exception.ApiException;
+import com.mokaform.mokaformserver.common.exception.errorcode.SurveyErrorCode;
 import com.mokaform.mokaformserver.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -75,5 +77,35 @@ public class Survey extends BaseEntity {
 
     public void updateIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public void updateStartDate(LocalDate startDate) {
+        if (startDate.isBefore(LocalDate.now())) {
+            throw new ApiException(SurveyErrorCode.INVALID_START_DATE);
+        }
+        this.startDate = startDate;
+    }
+
+    public void updateEndDate(LocalDate endDate) {
+        if (endDate.isBefore(this.startDate)) {
+            throw new ApiException(SurveyErrorCode.INVALID_END_DATE);
+        }
+        this.endDate = endDate;
+    }
+
+    public void updateAnonymous(Boolean isAnonymous) {
+        this.isAnonymous = isAnonymous;
+    }
+
+    public void updatePublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }
