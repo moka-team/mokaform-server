@@ -99,23 +99,27 @@ public class SurveyUpdateRequest {
         private Long questionId;
 
         @NotNull
-        private Long multiQuestionIndex;
-
-        @NotBlank
-        private String multiQuestionContent;
+        private Long questionIndex;
 
         @NotNull
-        private MultiQuestionType multiQuestionType;
+        private Long index;
+
+        @NotBlank
+        private String content;
+
+        @NotNull
+        private MultiQuestionType type;
 
         @Builder
         public MultiQuestion(Long multiQuestionId, Long questionId,
-                             Long questionIndex,
+                             Long questionIndex, Long index,
                              String content, MultiQuestionType type) {
             this.multiQuestionId = multiQuestionId;
             this.questionId = questionId;
-            this.multiQuestionIndex = questionIndex;
-            this.multiQuestionContent = content;
-            this.multiQuestionType = type;
+            this.questionIndex = questionIndex;
+            this.index = index;
+            this.content = content;
+            this.type = type;
         }
     }
 }

@@ -59,9 +59,10 @@ public class MultipleChoiceQuestion extends BaseEntity {
         }
     }
 
-    public void updateMultipleChoiceQuestion(MultiQuestionType type, String content
-                                             ) {
+    public void updateMultipleChoiceQuestion(MultiQuestionType type, String content,
+                                             Long index) {
         this.multiQuestionType = type;
         this.multiQuestionContent = content;
+        this.multiQuestionIndex = index;
     }
 }
