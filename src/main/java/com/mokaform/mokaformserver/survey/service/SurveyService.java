@@ -241,7 +241,25 @@ public class SurveyService {
                     .filter(q -> q.getQuestionId() == question.getQuestionId())
                     .findFirst();
             questionToUpdate.ifPresentOrElse(
-                    q -> question.updateQuestion(q.getIndex(), q.getTitle(), q.getType(), q.getIsMultipleAnswer()),
+                    q -> {
+                        question.updateQuestion(q.getIndex(), q.getTitle(), q.getType(), q.getIsMultipleAnswer());
+                        if (question.getIsMultiAnswer()) {
+                            multiQuestionsToUpdate
+                                    .stream()
+                                    .filter(multiQuestion ->
+                                            multiQuestion.getQuestionIndex() == question.getIndex()
+                                                    && multiQuestion.getMultiQuestionId() == null)
+                                    .forEach(multiQuestion ->
+                                            saveMultiChoiceQuestion(
+                                                    MultipleChoiceQuestion.builder()
+                                                            .question(question)
+                                                            .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                            .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                            .multiQuestionIndex(multiQuestion.getQuestionIndex())
+                                                            .build())
+                                    );
+                        }
+                    },
                     () -> questionRepository.delete(question));
         });
 
