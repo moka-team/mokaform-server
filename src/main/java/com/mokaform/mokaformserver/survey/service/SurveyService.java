@@ -278,6 +278,7 @@ public class SurveyService {
     }
 
     private SurveyDetailsResponse getSurveyDetails(Survey survey) {
+        List<SurveyCategory> surveyCategories = getSurveyCategories(survey.getSurveyId());
         List<Question> questions = getQuestions(survey.getSurveyId());
         ArrayList<MultipleChoiceQuestion> multiQuestions = questions.stream()
                 .filter(Question::getIsMultiAnswer)
@@ -287,6 +288,7 @@ public class SurveyService {
 
         return SurveyDetailsResponse.builder()
                 .survey(survey)
+                .surveyCategories(surveyCategories)
                 .questions(questions)
                 .multipleChoiceQuestions(multiQuestions)
                 .build();
