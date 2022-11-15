@@ -226,7 +226,7 @@ public class SurveyService {
                     .filter(m -> m.getMultiQuestionId() == multiQuestion.getMultiQuestionId())
                     .findFirst();
             multiQuestionToUpdate.ifPresentOrElse(
-                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getType(), m.getContent(), m.getIndex()),
+                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getMultiQuestionType(), m.getMultiQuestionContent(), m.getQuestionIndex()),
                     () -> {
                         multiQuestion.unsetQuestion();
                         multiChoiceQuestionRepository.delete(multiQuestion);
@@ -268,9 +268,9 @@ public class SurveyService {
                                         saveMultiChoiceQuestion(
                                                 MultipleChoiceQuestion.builder()
                                                         .question(savedQuestion)
-                                                        .multiQuestionType(multiQuestion.getType())
-                                                        .multiQuestionContent(multiQuestion.getContent())
-                                                        .multiQuestionIndex(multiQuestion.getIndex())
+                                                        .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                        .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                        .multiQuestionIndex(multiQuestion.getQuestionIndex())
                                                         .build())
                                 );
                     }
