@@ -226,7 +226,7 @@ public class SurveyService {
                     .filter(m -> m.getMultiQuestionId() == multiQuestion.getMultiQuestionId())
                     .findFirst();
             multiQuestionToUpdate.ifPresentOrElse(
-                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getType(), m.getContent(), m.getIndex()),
+                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getMultiQuestionType(), m.getMultiQuestionContent()),
                     () -> {
                         multiQuestion.unsetQuestion();
                         multiChoiceQuestionRepository.delete(multiQuestion);
@@ -262,15 +262,14 @@ public class SurveyService {
                         multiQuestionsToUpdate
                                 .stream()
                                 .filter(multiQuestion ->
-                                        multiQuestion.getQuestionIndex() == question.getIndex()
-                                                && multiQuestion.getMultiQuestionId() == null)
+                                                 multiQuestion.getMultiQuestionId() == null)
                                 .forEach(multiQuestion ->
                                         saveMultiChoiceQuestion(
                                                 MultipleChoiceQuestion.builder()
                                                         .question(savedQuestion)
-                                                        .multiQuestionType(multiQuestion.getType())
-                                                        .multiQuestionContent(multiQuestion.getContent())
-                                                        .multiQuestionIndex(multiQuestion.getIndex())
+                                                        .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                        .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                        .multiQuestionIndex(multiQuestion.getMultiQuestionIndex())
                                                         .build())
                                 );
                     }
