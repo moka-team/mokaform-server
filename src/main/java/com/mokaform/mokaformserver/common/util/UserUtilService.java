@@ -18,7 +18,7 @@ public class UserUtilService {
 
     @Transactional(readOnly = true)
     public User getUser(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsWithdraw(email, false)
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
     }
 
