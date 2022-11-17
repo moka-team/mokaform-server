@@ -275,8 +275,9 @@ public class UserController {
                         .build());
     }
 
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴하는 API입니다.")
     @PostMapping("/withdrawal")
-    public ResponseEntity<ApiResponse> withdraw(@AuthenticationPrincipal JwtAuthentication authentication) {
+    public ResponseEntity<ApiResponse> withdraw(@Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
         userService.withdraw(authentication.email);
 
         return ResponseEntity.ok()
