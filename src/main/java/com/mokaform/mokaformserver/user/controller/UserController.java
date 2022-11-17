@@ -274,4 +274,14 @@ public class UserController {
                         .message("비밀번호 재설정이 완료되었습니다.")
                         .build());
     }
+
+    @PostMapping("/withdrawal")
+    public ResponseEntity<ApiResponse> withdraw(@AuthenticationPrincipal JwtAuthentication authentication) {
+        userService.withdraw(authentication.email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("회원 탈퇴가 완료되었습니다.")
+                        .build());
+    }
 }
