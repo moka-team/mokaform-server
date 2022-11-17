@@ -234,7 +234,7 @@ public class SurveyService {
                     .filter(m -> m.getMultiQuestionId() == multiQuestion.getMultiQuestionId())
                     .findFirst();
             multiQuestionToUpdate.ifPresentOrElse(
-                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getType(), m.getContent(), m.getIndex()),
+                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getMultiQuestionType(), m.getMultiQuestionContent(), m.getQuestionIndex()),
                     () -> {
                         multiQuestion.unsetQuestion();
                         multiChoiceQuestionRepository.delete(multiQuestion);
@@ -249,7 +249,25 @@ public class SurveyService {
                     .filter(q -> q.getQuestionId() == question.getQuestionId())
                     .findFirst();
             questionToUpdate.ifPresentOrElse(
-                    q -> question.updateQuestion(q.getIndex(), q.getTitle(), q.getType(), q.getIsMultipleAnswer()),
+                    q -> {
+                        question.updateQuestion(q.getIndex(), q.getTitle(), q.getType(), q.getIsMultipleAnswer());
+                        if (question.getIsMultiAnswer()) {
+                            multiQuestionsToUpdate
+                                    .stream()
+                                    .filter(multiQuestion ->
+                                            multiQuestion.getQuestionIndex() == question.getIndex()
+                                                    && multiQuestion.getMultiQuestionId() == null)
+                                    .forEach(multiQuestion ->
+                                            saveMultiChoiceQuestion(
+                                                    MultipleChoiceQuestion.builder()
+                                                            .question(question)
+                                                            .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                            .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                            .multiQuestionIndex(multiQuestion.getQuestionIndex())
+                                                            .build())
+                                    );
+                        }
+                    },
                     () -> questionRepository.delete(question));
         });
 
@@ -276,9 +294,9 @@ public class SurveyService {
                                         saveMultiChoiceQuestion(
                                                 MultipleChoiceQuestion.builder()
                                                         .question(savedQuestion)
-                                                        .multiQuestionType(multiQuestion.getType())
-                                                        .multiQuestionContent(multiQuestion.getContent())
-                                                        .multiQuestionIndex(multiQuestion.getIndex())
+                                                        .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                        .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                        .multiQuestionIndex(multiQuestion.getQuestionIndex())
                                                         .build())
                                 );
                     }
