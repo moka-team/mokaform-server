@@ -107,7 +107,8 @@ public class WebSecurityConfig {
                                            AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         http.authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers("/api/v1/survey/list").permitAll()
+                .antMatchers("/api/v1/survey/list",
+                        "/api/v1/survey/recommended-list").permitAll()
                 .antMatchers("/api/v1/users/my/**",
                         "/api/v1/survey/**",
                         "/api/v1/answer/**").hasAnyAuthority(RoleName.USER.name())

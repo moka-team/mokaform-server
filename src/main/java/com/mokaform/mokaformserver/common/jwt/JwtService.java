@@ -107,7 +107,8 @@ public class JwtService {
                 "/api/v1/users/reset-password/email-verification/send",
                 "/api/v1/users/reset-password/email-verification/check",
                 "/api/v1/users/reset-password",
-                "/api/v1/survey/list"
+                "/api/v1/survey/list",
+                "/api/v1/survey/recommended-list"
         };
 
         return !Arrays.asList(notRequiredAuth).contains(requestURI);

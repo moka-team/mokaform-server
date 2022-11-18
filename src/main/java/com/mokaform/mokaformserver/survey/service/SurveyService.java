@@ -128,6 +128,14 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<SurveyInfoResponse> getRecommendedSurveyInfos(Pageable pageable, String categoryName) {
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findRecommendedSurveyInfos(pageable, Category.getCategory(categoryName));
+        return new PageResponse<>(
+                surveyInfos.map(surveyInfo ->
+                        new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, String userEmail) {
         User user = userUtilService.getUser(userEmail);
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, user.getId());

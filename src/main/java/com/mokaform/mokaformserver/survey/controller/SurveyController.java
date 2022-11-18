@@ -90,6 +90,23 @@ public class SurveyController {
                 .body(apiResponse);
     }
 
+    @Operation(summary = "카테고리별 추천 설문 다건 조회", description = "카테고리별 추천 설문을 다건 조회하는 API입니다.")
+    @GetMapping("/recommended-list")
+    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getRecommendedSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                                     @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                                                     @Parameter(description = "DAILY_LIFE, IT, HOBBY, LEARNING, PSYCHOLOGY, SOCIAL_POLITICS, PREFERENCE_RESEARCH, PET")
+                                                                                     @RequestParam(value = "category") String category) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getRecommendedSurveyInfos(pageable, category);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("카테고리별 추천 설문 다건 조회가 성공하였습니다.")
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
     @Operation(summary = "설문 삭제", description = "설문을 삭제하는 API입니다.")
     @DeleteMapping("/{surveyId}")
     public ResponseEntity<ApiResponse<SurveyDeleteResponse>> removeSurvey(@PathVariable(value = "surveyId") Long surveyId,
