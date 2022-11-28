@@ -3,16 +3,10 @@ package com.mokaform.mokaformserver.user.service;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.exception.errorcode.UserErrorCode;
-import com.mokaform.mokaformserver.survey.domain.Survey;
-import com.mokaform.mokaformserver.survey.domain.enums.Category;
-import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.PreferenceCategory;
 import com.mokaform.mokaformserver.user.domain.Role;
 import com.mokaform.mokaformserver.user.domain.User;
-import com.mokaform.mokaformserver.user.domain.enums.AgeGroup;
-import com.mokaform.mokaformserver.user.domain.enums.Gender;
-import com.mokaform.mokaformserver.user.domain.enums.Job;
-import com.mokaform.mokaformserver.user.domain.enums.RoleName;
+import com.mokaform.mokaformserver.user.domain.enums.*;
 import com.mokaform.mokaformserver.user.dto.request.ResetPasswordRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
@@ -37,18 +31,15 @@ public class UserService {
     private final PreferenceCategoryRepository preferenceCategoryRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SurveyRepository surveyRepository;
 
     public UserService(UserRepository userRepository,
                        PreferenceCategoryRepository preferenceCategoryRepository,
                        RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       SurveyRepository surveyRepository) {
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.preferenceCategoryRepository = preferenceCategoryRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.surveyRepository = surveyRepository;
     }
 
     @Transactional
@@ -120,8 +111,8 @@ public class UserService {
         User user = userRepository.findByEmailAndIsWithdraw(userEmail, false)
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
         user.withdraw();
-
-        List<Survey> surveys = surveyRepository.findAllByUser_Id(user.getId());
-        surveys.forEach(s -> s.updateIsDeleted(true));
+//TODO: 탈퇴 회원 생성 설문 삭제 API 구현
+//        List<Survey> surveys = surveyRepository.findAllByUser_Id(user.getId());
+//        surveys.forEach(s -> s.updateIsDeleted(true));
     }
 }

@@ -1,7 +1,7 @@
 package com.mokaform.mokaformserver.user.domain;
 
 import com.mokaform.mokaformserver.common.entitiy.BaseEntity;
-import com.mokaform.mokaformserver.survey.domain.enums.Category;
+import com.mokaform.mokaformserver.user.domain.enums.Category;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

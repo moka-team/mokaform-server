@@ -7,10 +7,7 @@ import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyUpdateRequest;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
-import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
+import com.mokaform.mokaformserver.survey.dto.response.*;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -136,4 +133,40 @@ public class SurveyController {
         return ResponseEntity.ok()
                 .body(apiResponse);
     }
+
+    @Operation(summary = "내가 작성한 설문 다건 조회", description = "내가 작성한 설문 다건 조회하는 API입니다.")
+    @GetMapping("my/surveys")
+    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getSurveysByUserId(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                          @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                                          @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getSurveyInfos(pageable, authentication.email);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("내가 작성한 설문 다건 조회가 성공하였습니다.")
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
+    @Operation(summary = "내가 참여한 설문 다건 조회", description = "내가 참여한 설문 다건 조회하는 API입니다.")
+    @GetMapping("my/submitted-surveys")
+    public ResponseEntity<ApiResponse<SubmittedSurveyInfoResponse>> getSubmittedSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                                            @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                                                            @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
+        PageResponse<SubmittedSurveyInfoResponse> response = surveyService.getSubmittedSurveyInfos(pageable, authentication.email);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("내가 참여한 설문 다건 조회가 성공하였습니다.")
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
+
+
+
 }
