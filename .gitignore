@@ -40,3 +40,4 @@ out/
 /src/main/resources/application-develop.yml
 /src/main/resources/application-jwt-dev.yml
 /src/main/resources/application-mail.yml
+/src/main/resources/application-kic.yml
