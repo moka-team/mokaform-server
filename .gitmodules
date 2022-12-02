@@ -1,0 +1,3 @@
+[submodule "mokaform-security"]
+	path = mokaform-security
+	url = https://github.com/moka-team/mokaform-security.git
