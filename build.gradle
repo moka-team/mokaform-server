@@ -70,12 +70,23 @@ tasks.named('test') {
 // querydsl
 def querydslDir = "$buildDir/generated/querydsl" as Object
 
+// profile
+def profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+
 querydsl {
     jpa = true
     querydslSourcesDir = querydslDir
 }
+
 sourceSets {
-    main.java.srcDir querydslDir
+    main {
+        java {
+            srcDirs "src/main/java", querydslDir
+        }
+        resources {
+            srcDirs "src/main/resources", "src/main/resources-env/${profile}"
+        }
+    }
 }
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
@@ -89,7 +100,31 @@ configurations {
 
 // submodule에 있는 .yml 파일들을 'src/main/resources'로 복사
 task copySecurityFiles(type: Copy) {
-    from "./mokaform-security"
-    include "*.yml"
-    into "src/main/resources"
+    // common
+    copy {
+        from "./mokaform-security/application-kic.yml",
+                "./mokaform-security/application-mail.yml"
+        into "./src/main/resources"
+    }
+    // local
+    copy {
+        from "./mokaform-security/application-jwt-dev.yml"
+        into "./src/main/resources-env/local"
+    }
+    // dev
+    copy {
+        from "./mokaform-security/application-develop.yml",
+                "./mokaform-security/application-jwt-dev.yml"
+        into "./src/main/resources-env/dev"
+    }
+    // prod
+    copy {
+        from "./mokaform-security/application-prod.yml",
+                "./mokaform-security/application-jwt.yml"
+        into "./src/main/resources-env/prod"
+    }
+}
+
+tasks.processResources {
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
 }
