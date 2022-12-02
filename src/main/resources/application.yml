@@ -21,3 +21,6 @@ spring:
   profiles:
     include:
       - springdoc
+      - jwt
+      - kic
+      - mail
