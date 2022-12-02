@@ -86,3 +86,10 @@ configurations {
     }
     querydsl.extendsFrom compileClasspath
 }
+
+// submodule에 있는 .yml 파일들을 'src/main/resources'로 복사
+task copySecurityFiles(type: Copy) {
+    from "./mokaform-security"
+    include "*.yml"
+    into "src/main/resources"
+}
