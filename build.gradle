@@ -71,7 +71,7 @@ tasks.named('test') {
 def querydslDir = "$buildDir/generated/querydsl" as Object
 
 // profile
-def profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
 
 querydsl {
     jpa = true
