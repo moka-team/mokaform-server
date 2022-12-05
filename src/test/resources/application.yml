@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: mokaform
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 1000
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    url: jdbc:h2:mem:mokaform;MODE=MYSQL;DB_CLOSE_DELAY=-1
+  redis:
+    host: localhost
+    port: 6379
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 50MB
+
+jwt:
+  issuer: test
+  client-secret: TESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtestTESTtest
+  access-token-header: accessToken
+  access-token-expiry-seconds: 90
+  refresh-token-header: refreshToken
+  refresh-token-expiry-seconds: 180
+
+springdoc:
+  version: 1.0
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    doc-expansion: none
+  paths-to-match:
+    - /api/v1/**
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
