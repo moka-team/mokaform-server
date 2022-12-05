@@ -131,3 +131,8 @@ bootRun {
     println "active-profile: $activeProfile"
     systemProperty "spring.profiles.active", activeProfile
 }
+
+// plain archive skip하기
+jar {
+    enabled = false
+}
