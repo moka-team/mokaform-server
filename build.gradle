@@ -72,6 +72,7 @@ def querydslDir = "$buildDir/generated/querydsl" as Object
 
 // profile
 ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+println "profile = " + profile
 
 querydsl {
     jpa = true
@@ -88,6 +89,7 @@ sourceSets {
         }
     }
 }
+
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
@@ -106,11 +108,6 @@ task copySecurityFiles(type: Copy) {
                 "./mokaform-security/application-mail.yml"
         into "./src/main/resources"
     }
-    // local
-    copy {
-        from "./mokaform-security/application-jwt-dev.yml"
-        into "./src/main/resources-env/local"
-    }
     // dev
     copy {
         from "./mokaform-security/application-develop.yml",
@@ -127,4 +124,10 @@ task copySecurityFiles(type: Copy) {
 
 tasks.processResources {
     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+}
+
+bootRun {
+    String activeProfile = System.properties['spring.profiles.active']
+    println "active-profile: $activeProfile"
+    systemProperty "spring.profiles.active", activeProfile
 }
