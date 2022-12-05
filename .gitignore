@@ -37,7 +37,6 @@ out/
 .vscode/
 /src/main/resources/application-mail.yml
 /src/main/resources/application-kic.yml
-/src/main/resources-env/local/application-jwt-dev.yml
 /src/main/resources-env/dev/application-develop.yml
 /src/main/resources-env/dev/application-jwt-dev.yml
 /src/main/resources-env/prod/application-jwt.yml

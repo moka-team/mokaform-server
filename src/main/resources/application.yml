@@ -19,6 +19,16 @@ spring:
       max-file-size: 5MB
       max-request-size: 50MB
   profiles:
+    group:
+      local:
+        - jwt-local
+        - local
+      dev:
+        - jwt-dev
+        - develop
+      prod:
+        - jwt
+        - prod
     include:
       - springdoc
       - kic
