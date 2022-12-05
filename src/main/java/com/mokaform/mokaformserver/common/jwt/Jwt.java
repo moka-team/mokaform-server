@@ -19,6 +19,10 @@ public final class Jwt {
 
     private final String clientSecret;
 
+    private final String accessTokenHeader;
+
+    private final String refreshTokenHeader;
+
     private final int accessTokenExpirySeconds;
 
     private final int refreshTokenExpirySeconds;
@@ -27,9 +31,11 @@ public final class Jwt {
 
     private final JWTVerifier jwtVerifier;
 
-    public Jwt(String issuer, String clientSecret, int accessTokenExpirySeconds, int refreshTokenExpirySeconds) {
+    public Jwt(String issuer, String clientSecret, String accessTokenHeader, String refreshTokenHeader, int accessTokenExpirySeconds, int refreshTokenExpirySeconds) {
         this.issuer = issuer;
         this.clientSecret = clientSecret;
+        this.accessTokenHeader = accessTokenHeader;
+        this.refreshTokenHeader = refreshTokenHeader;
         this.accessTokenExpirySeconds = accessTokenExpirySeconds;
         this.refreshTokenExpirySeconds = refreshTokenExpirySeconds;
         this.algorithm = Algorithm.HMAC512(clientSecret);
@@ -74,6 +80,14 @@ public final class Jwt {
 
     public String getClientSecret() {
         return clientSecret;
+    }
+
+    public String getAccessTokenHeader() {
+        return accessTokenHeader;
+    }
+
+    public String getRefreshTokenHeader() {
+        return refreshTokenHeader;
     }
 
     public int getAccessTokenExpirySeconds() {

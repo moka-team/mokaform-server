@@ -3,7 +3,9 @@ package com.mokaform.mokaformserver.user.service;
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
 import com.mokaform.mokaformserver.common.exception.errorcode.UserErrorCode;
+import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.domain.enums.Category;
+import com.mokaform.mokaformserver.survey.repository.SurveyRepository;
 import com.mokaform.mokaformserver.user.domain.PreferenceCategory;
 import com.mokaform.mokaformserver.user.domain.Role;
 import com.mokaform.mokaformserver.user.domain.User;
@@ -11,6 +13,7 @@ import com.mokaform.mokaformserver.user.domain.enums.AgeGroup;
 import com.mokaform.mokaformserver.user.domain.enums.Gender;
 import com.mokaform.mokaformserver.user.domain.enums.Job;
 import com.mokaform.mokaformserver.user.domain.enums.RoleName;
+import com.mokaform.mokaformserver.user.dto.request.ResetPasswordRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
@@ -34,13 +37,18 @@ public class UserService {
     private final PreferenceCategoryRepository preferenceCategoryRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SurveyRepository surveyRepository;
 
-    public UserService(UserRepository userRepository, PreferenceCategoryRepository preferenceCategoryRepository,
-                       RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       PreferenceCategoryRepository preferenceCategoryRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder,
+                       SurveyRepository surveyRepository) {
         this.userRepository = userRepository;
         this.preferenceCategoryRepository = preferenceCategoryRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.surveyRepository = surveyRepository;
     }
 
     @Transactional
@@ -85,7 +93,7 @@ public class UserService {
         Assert.isTrue(isNotEmpty(principal), "principal must be provided.");
         Assert.isTrue(isNotEmpty(credentials), "credentials must be provided.");
 
-        User user = userRepository.findByEmail(principal)
+        User user = userRepository.findByEmailAndIsWithdraw(principal, false)
                 .orElseThrow(() -> new UsernameNotFoundException("Could not found user for " + principal));
         user.checkPassword(passwordEncoder, credentials);
         return user;
@@ -93,11 +101,27 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserGetResponse getUserInfo(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
+        User user = userRepository.findByEmailAndIsWithdraw(userEmail, false)
                 .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
         List<PreferenceCategory> preferenceCategories = preferenceCategoryRepository.findByUserId(user.getId());
 
         return new UserGetResponse(user, preferenceCategories);
     }
 
+    @Transactional
+    public void updatePassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmailAndIsWithdraw(request.getEmail(), false)
+                .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+        user.updatePassword(passwordEncoder.encode(request.getPassword()));
+    }
+
+    @Transactional
+    public void withdraw(String userEmail) {
+        User user = userRepository.findByEmailAndIsWithdraw(userEmail, false)
+                .orElseThrow(() -> new ApiException(UserErrorCode.USER_NOT_FOUND));
+        user.withdraw();
+
+        List<Survey> surveys = surveyRepository.findAllByUser_Id(user.getId());
+        surveys.forEach(s -> s.updateIsDeleted(true));
+    }
 }

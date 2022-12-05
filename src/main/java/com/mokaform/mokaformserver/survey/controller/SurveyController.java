@@ -6,6 +6,7 @@ import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
+import com.mokaform.mokaformserver.survey.dto.request.SurveyUpdateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyCreateResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDeleteResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyDetailsResponse;
@@ -89,6 +90,23 @@ public class SurveyController {
                 .body(apiResponse);
     }
 
+    @Operation(summary = "카테고리별 추천 설문 다건 조회", description = "카테고리별 추천 설문을 다건 조회하는 API입니다.")
+    @GetMapping("/recommended-list")
+    public ResponseEntity<ApiResponse<SurveyInfoResponse>> getRecommendedSurveyInfos(@Parameter(description = "sort: {createdAt, surveyeeCount}, {asc, desc} 가능 => 예시: \"createdAt,desc\"")
+                                                                                     @PageableDefault(sort = "createdAt", direction = DESC) Pageable pageable,
+                                                                                     @Parameter(description = "DAILY_LIFE, IT, HOBBY, LEARNING, PSYCHOLOGY, SOCIAL_POLITICS, PREFERENCE_RESEARCH, PET")
+                                                                                     @RequestParam(value = "category") String category) {
+        PageResponse<SurveyInfoResponse> response = surveyService.getRecommendedSurveyInfos(pageable, category);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("카테고리별 추천 설문 다건 조회가 성공하였습니다.")
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
+
     @Operation(summary = "설문 삭제", description = "설문을 삭제하는 API입니다.")
     @DeleteMapping("/{surveyId}")
     public ResponseEntity<ApiResponse<SurveyDeleteResponse>> removeSurvey(@PathVariable(value = "surveyId") Long surveyId,
@@ -104,4 +122,18 @@ public class SurveyController {
                 .body(apiResponse);
     }
 
+    @Operation(summary = "설문 수정", description = "설문을 수정하는 API입니다. (설문 시작일 전에만 수정 가능)")
+    @PatchMapping("/{surveyId}")
+    public ResponseEntity<ApiResponse> updateSurvey(@PathVariable(value = "surveyId") Long surveyId,
+                                                    @RequestBody @Valid SurveyUpdateRequest request,
+                                                    @Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
+        surveyService.updateSurveyInfoAndQuestions(surveyId, authentication.email, request);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .message("설문 수정이 성공하였습니다.")
+                .build();
+
+        return ResponseEntity.ok()
+                .body(apiResponse);
+    }
 }

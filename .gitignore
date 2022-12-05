@@ -35,7 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/application-prod.yml
-/src/main/resources/application-jwt.yml
-/src/main/resources/application-jwt-dev.yml
-/src/main/resources/application-develop.yml
+/src/main/resources/application-mail.yml
+/src/main/resources/application-kic.yml
+/src/main/resources-env/dev/application-develop.yml
+/src/main/resources-env/dev/application-jwt-dev.yml
+/src/main/resources-env/prod/application-jwt.yml
+/src/main/resources-env/prod/application-prod.yml

@@ -1,10 +1,8 @@
 package com.mokaform.mokaformserver.common.config;
 
-import com.mokaform.mokaformserver.common.jwt.ExceptionHandlerFilter;
-import com.mokaform.mokaformserver.common.jwt.Jwt;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationFilter;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationProvider;
+import com.mokaform.mokaformserver.common.jwt.*;
 import com.mokaform.mokaformserver.common.util.RedisService;
+import com.mokaform.mokaformserver.user.domain.enums.RoleName;
 import com.mokaform.mokaformserver.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +21,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -72,11 +71,16 @@ public class WebSecurityConfig {
         return new Jwt(
                 jwtConfig.getIssuer(),
                 jwtConfig.getClientSecret(),
-//                jwtConfig.getAccessTokenHeader(),
-//                jwtConfig.getRefreshTokenHeader(),
+                jwtConfig.getAccessTokenHeader(),
+                jwtConfig.getRefreshTokenHeader(),
                 jwtConfig.getAccessTokenExpirySeconds(),
                 jwtConfig.getRefreshTokenExpirySeconds()
         );
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService) {
+        return new JwtAuthenticationFilter(jwtService);
     }
 
     @Bean
@@ -102,6 +106,12 @@ public class WebSecurityConfig {
                                            JwtAuthenticationFilter jwtAuthenticationFilter,
                                            AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         http.authorizeRequests()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .antMatchers("/api/v1/survey/list",
+                        "/api/v1/survey/recommended-list").permitAll()
+                .antMatchers("/api/v1/users/my/**",
+                        "/api/v1/survey/**",
+                        "/api/v1/answer/**").hasAnyAuthority(RoleName.USER.name())
                 .anyRequest().permitAll()
                 .and()
                 /**

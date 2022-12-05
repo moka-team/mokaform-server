@@ -1,5 +1,6 @@
 package com.mokaform.mokaformserver.survey.repository;
 
+import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.survey.dto.mapping.SubmittedSurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.repository.enums.SurveySortType;
@@ -26,6 +27,7 @@ import static com.mokaform.mokaformserver.answer.domain.QAnswer.answer;
 import static com.mokaform.mokaformserver.common.util.QuerydslCustomUtils.nullSafeBooleanBuilder;
 import static com.mokaform.mokaformserver.survey.domain.QQuestion.question;
 import static com.mokaform.mokaformserver.survey.domain.QSurvey.survey;
+import static com.mokaform.mokaformserver.survey.domain.QSurveyCategory.surveyCategory;
 
 @RequiredArgsConstructor
 public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
@@ -33,6 +35,7 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
     private static final String PAGEABLE_MUST_NOT_BE_NULL = "The given pageable must not be null!";
     private static final String USER_ID_MUST_NOT_BE_NULL = "The given user id must not be null!";
     private static final String SURVEY_ID_MUST_NOT_BE_NULL = "The given survey id must not be null!";
+    private static final String CATEGORY_MUST_NOT_BE_NULL = "The given category must not be null!";
 
     private final JPAQueryFactory queryFactory;
 
@@ -70,6 +73,47 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
                 .where(
                         survey.isDeleted.isFalse(),
                         filterMySurvey(userId));
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<SurveyInfoMapping> findRecommendedSurveyInfos(Pageable pageable, Category category) {
+        checkPageable(pageable);
+        checkCategory(category);
+
+        List<SurveyInfoMapping> content = queryFactory
+                .select(
+                        Projections.fields(SurveyInfoMapping.class,
+                                survey.surveyId,
+                                survey.title,
+                                survey.summary,
+                                survey.startDate,
+                                survey.endDate,
+                                survey.isAnonymous,
+                                survey.isPublic,
+                                survey.sharingKey,
+                                answer.user.id.countDistinct().as("surveyeeCount")))
+                .from(survey)
+                .leftJoin(question).on(survey.surveyId.eq(question.survey.surveyId))
+                .leftJoin(answer).on(question.questionId.eq(answer.question.questionId))
+                .leftJoin(surveyCategory).on(survey.surveyId.eq(surveyCategory.survey.surveyId))
+                .where(
+                        survey.isDeleted.isFalse(),
+                        filterMySurvey(null),
+                        surveyCategory.category.eq(category))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .groupBy(survey.surveyId)
+                .orderBy(getAllOrderSpecifiers(pageable).toArray(OrderSpecifier[]::new))
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(survey.countDistinct())
+                .from(survey)
+                .where(
+                        survey.isDeleted.isFalse(),
+                        filterMySurvey(null));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
@@ -152,6 +196,10 @@ public class SurveyCustomRepositoryImpl implements SurveyCustomRepository {
 
     private void checkSurveyId(Long surveyId) {
         Assert.notNull(surveyId, SURVEY_ID_MUST_NOT_BE_NULL);
+    }
+
+    private void checkCategory(Category category) {
+        Assert.notNull(category, CATEGORY_MUST_NOT_BE_NULL);
     }
 
     private List<OrderSpecifier> getAllOrderSpecifiers(Pageable pageable) {

@@ -4,31 +4,35 @@ import com.mokaform.mokaformserver.answer.dto.response.AnswerDetailResponse;
 import com.mokaform.mokaformserver.answer.dto.response.stat.AnswerStatsResponse;
 import com.mokaform.mokaformserver.answer.service.AnswerService;
 import com.mokaform.mokaformserver.common.jwt.JwtAuthentication;
-import com.mokaform.mokaformserver.common.jwt.JwtAuthenticationToken;
 import com.mokaform.mokaformserver.common.jwt.JwtService;
 import com.mokaform.mokaformserver.common.response.ApiResponse;
 import com.mokaform.mokaformserver.common.response.PageResponse;
+import com.mokaform.mokaformserver.common.util.constant.EmailType;
 import com.mokaform.mokaformserver.survey.dto.response.SubmittedSurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.dto.response.SurveyInfoResponse;
 import com.mokaform.mokaformserver.survey.service.SurveyService;
 import com.mokaform.mokaformserver.user.dto.request.LocalLoginRequest;
+import com.mokaform.mokaformserver.user.dto.request.ResetPasswordRequest;
 import com.mokaform.mokaformserver.user.dto.request.SignupRequest;
-import com.mokaform.mokaformserver.user.dto.request.TokenReissueRequest;
 import com.mokaform.mokaformserver.user.dto.response.DuplicateValidationResponse;
 import com.mokaform.mokaformserver.user.dto.response.LocalLoginResponse;
 import com.mokaform.mokaformserver.user.dto.response.UserGetResponse;
+import com.mokaform.mokaformserver.user.service.EmailService;
 import com.mokaform.mokaformserver.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -42,19 +46,18 @@ public class UserController {
     private final SurveyService surveyService;
     private final AnswerService answerService;
     private final JwtService jwtService;
-
-    private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     public UserController(UserService userService,
                           SurveyService surveyService,
                           AnswerService answerService,
                           JwtService jwtService,
-                          AuthenticationManager authenticationManager) {
+                          EmailService emailService) {
         this.userService = userService;
         this.surveyService = surveyService;
         this.answerService = answerService;
         this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
+        this.emailService = emailService;
     }
 
     @Operation(summary = "회원가입", description = "회원가입 API입니다.")
@@ -159,17 +162,21 @@ public class UserController {
     }
 
     @Operation(summary = "로그인", description = "로그인하는 API입니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+                    headers = @Header(
+                            name = "Set-Cookie",
+                            schema = @Schema(
+                                    type = "String",
+                                    example = "refreshToken=${REFRESH_TOKEN}; Max-Age=1209599; Expires=Tue, 22-Nov-2022 09:07:55 GMT; Path=/; Secure; HttpOnly")))
+    })
     @PostMapping(path = "/login")
-    public ResponseEntity<ApiResponse<LocalLoginResponse>> login(@RequestBody @Valid LocalLoginRequest request) {
-        JwtAuthenticationToken authToken = new JwtAuthenticationToken(request.getEmail(), request.getPassword());
-        Authentication resultToken = authenticationManager.authenticate(authToken);
-        JwtAuthentication authentication = (JwtAuthentication) resultToken.getPrincipal();
-        String refreshToken = (String) resultToken.getDetails();
-        LocalLoginResponse response = new LocalLoginResponse(authentication.accessToken, refreshToken, authentication.email);
+    public ResponseEntity<ApiResponse<LocalLoginResponse>> login(@RequestBody @Valid LocalLoginRequest request,
+                                                                 HttpServletResponse response) {
+        jwtService.login(request, response);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .message("로그인 성공하였습니다.")
-                .data(response)
                 .build();
 
         return ResponseEntity.ok()
@@ -202,12 +209,80 @@ public class UserController {
 
     @Operation(summary = "토큰 재발급", description = "access token을 재발급하는 API입니다.")
     @PostMapping("/token/reissue")
-    public ResponseEntity<ApiResponse> reissueAccessToken(@RequestBody @Valid TokenReissueRequest request) {
-        String newAccessToken = jwtService.reissueAccessToken(request.getAccessToken(), request.getRefreshToken());
+    public ResponseEntity<ApiResponse> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        jwtService.reissueAccessToken(request, response);
+
         return ResponseEntity.ok()
                 .body(ApiResponse.builder()
                         .message("토큰이 재발급되었습니다.")
-                        .data(newAccessToken)
+                        .build());
+    }
+
+    @Operation(summary = "회원가입 - 이메일 검증 - 전송", description = "회원가입할 때, 이메일 검증을 위해 이메일을 전송하는 API입니다.")
+    @PostMapping("/signup/email-verification/send")
+    public ResponseEntity<ApiResponse> sendSignUpVerificationEmail(@RequestParam(value = "email") String email) {
+        emailService.sendVerificationCode(EmailType.SIGN_IN, email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호가 포함된 이메일 전송이 완료되었습니다.")
+                        .build());
+    }
+
+    @Operation(summary = "회원가입 - 이메일 검증 - 인증번호 확인", description = "회원가입할 때, 인증번호를 확인하는 API입니다.")
+    @GetMapping("/signup/email-verification/check")
+    public ResponseEntity<ApiResponse> checkSignUpVerificationEmail(@RequestParam(value = "email") String email,
+                                                                    @RequestParam(value = "code") String code) {
+        emailService.checkVerificationCode(EmailType.SIGN_IN, email, code);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호 확인이 완료되었습니다.")
+                        .build());
+    }
+
+    @Operation(summary = "비밀번호 재설정 - 이메일 검증 - 전송", description = "비밀번호 재설정할 때, 이메일 검증을 위해 이메일을 전송하는 API입니다.")
+    @PostMapping("/reset-password/email-verification/send")
+    public ResponseEntity<ApiResponse> sendResetPasswordVerificationEmail(@RequestParam(value = "email") String email) {
+        emailService.sendVerificationCode(EmailType.RESET_PASSWORD, email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호가 포함된 이메일 전송이 완료되었습니다.")
+                        .build());
+    }
+
+    @Operation(summary = "비밀번호 재설정 - 이메일 검증 - 인증번호 확인", description = "비밀번호 재설정할 때, 인증번호를 확인하는 API입니다.")
+    @GetMapping("/reset-password/email-verification/check")
+    public ResponseEntity<ApiResponse> checkResetPasswordVerificationEmail(@RequestParam(value = "email") String email,
+                                                                           @RequestParam(value = "code") String code) {
+        emailService.checkVerificationCode(EmailType.RESET_PASSWORD, email, code);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("인증번호 확인이 완료되었습니다.")
+                        .build());
+    }
+
+    @Operation(summary = "비밀번호 재설정", description = "비밀전호를 재설정하는 API입니다.")
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userService.updatePassword(request);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("비밀번호 재설정이 완료되었습니다.")
+                        .build());
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴하는 API입니다.")
+    @PostMapping("/withdrawal")
+    public ResponseEntity<ApiResponse> withdraw(@Parameter(hidden = true) @AuthenticationPrincipal JwtAuthentication authentication) {
+        userService.withdraw(authentication.email);
+
+        return ResponseEntity.ok()
+                .body(ApiResponse.builder()
+                        .message("회원 탈퇴가 완료되었습니다.")
                         .build());
     }
 }

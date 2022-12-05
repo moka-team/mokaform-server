@@ -2,6 +2,7 @@ package com.mokaform.mokaformserver.survey.service;
 
 import com.mokaform.mokaformserver.common.exception.ApiException;
 import com.mokaform.mokaformserver.common.exception.errorcode.CommonErrorCode;
+import com.mokaform.mokaformserver.common.exception.errorcode.ErrorCode;
 import com.mokaform.mokaformserver.common.exception.errorcode.SurveyErrorCode;
 import com.mokaform.mokaformserver.common.response.PageResponse;
 import com.mokaform.mokaformserver.common.util.UserUtilService;
@@ -9,9 +10,11 @@ import com.mokaform.mokaformserver.survey.domain.MultipleChoiceQuestion;
 import com.mokaform.mokaformserver.survey.domain.Question;
 import com.mokaform.mokaformserver.survey.domain.Survey;
 import com.mokaform.mokaformserver.survey.domain.SurveyCategory;
+import com.mokaform.mokaformserver.survey.domain.enums.Category;
 import com.mokaform.mokaformserver.survey.dto.mapping.SubmittedSurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.mapping.SurveyInfoMapping;
 import com.mokaform.mokaformserver.survey.dto.request.SurveyCreateRequest;
+import com.mokaform.mokaformserver.survey.dto.request.SurveyUpdateRequest;
 import com.mokaform.mokaformserver.survey.dto.response.*;
 import com.mokaform.mokaformserver.survey.repository.MultiChoiceQuestionRepository;
 import com.mokaform.mokaformserver.survey.repository.QuestionRepository;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -124,6 +128,14 @@ public class SurveyService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<SurveyInfoResponse> getRecommendedSurveyInfos(Pageable pageable, String categoryName) {
+        Page<SurveyInfoMapping> surveyInfos = surveyRepository.findRecommendedSurveyInfos(pageable, Category.getCategory(categoryName));
+        return new PageResponse<>(
+                surveyInfos.map(surveyInfo ->
+                        new SurveyInfoResponse(surveyInfo, getSurveyCategories(surveyInfo.getSurveyId()))));
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<SubmittedSurveyInfoResponse> getSubmittedSurveyInfos(Pageable pageable, String userEmail) {
         User user = userUtilService.getUser(userEmail);
         Page<SubmittedSurveyInfoMapping> surveyInfos = surveyRepository.findSubmittedSurveyInfos(pageable, user.getId());
@@ -163,12 +175,136 @@ public class SurveyService {
     public SurveyDeleteResponse deleteSurvey(Long surveyId, String userEmail) {
         User user = userUtilService.getUser(userEmail);
         Survey survey = getSurveyById(surveyId);
-        validateUserAuthority(user, survey);
+        validateUserAuthority(user, survey, SurveyErrorCode.NO_PERMISSION_TO_DELETE_SURVEY);
         survey.updateIsDeleted(true);
         return new SurveyDeleteResponse(survey.getSurveyId());
     }
 
+    @Transactional
+    public void updateSurveyInfoAndQuestions(Long surveyId, String userEmail, SurveyUpdateRequest request) {
+        User user = userUtilService.getUser(userEmail);
+        Survey survey = getSurveyById(surveyId);
+        validateUserAuthority(user, survey, SurveyErrorCode.NO_PERMISSION_TO_UPDATE_SURVEY);
+
+        /*
+         * 설문 정보 업데이트
+         */
+        survey.updateTitle(request.getTitle());
+        survey.updateSummary(request.getSummary());
+        survey.updateStartDate(request.getStartDate());
+        survey.updateEndDate(request.getEndDate());
+        survey.updateAnonymous(request.getIsAnonymous());
+        survey.updatePublic(request.getIsPublic());
+
+        /*
+         * 설문 카테고리 업데이트
+         */
+        List<Category> categoriesToUpdate = request.getCategories();
+        List<SurveyCategory> existingSurveyCategories = getSurveyCategories(surveyId);
+        existingSurveyCategories.forEach(category -> {
+            Optional<Category> categoryToUpdate = categoriesToUpdate
+                    .stream()
+                    .filter(c -> c.equals(category.getCategory()))
+                    .findFirst();
+            categoryToUpdate.ifPresentOrElse(
+                    c -> categoriesToUpdate.remove(c),
+                    () -> {
+                        category.unsetSurvey();
+                        surveyCategoryRepository.delete(category);
+                    }
+            );
+        });
+        categoriesToUpdate.forEach(category ->
+                saveSurveyCategory(new SurveyCategory(category, survey)));
+
+        /*
+         * 질문 업데이트
+         */
+        List<Question> existingQuestions = getQuestions(survey.getSurveyId());
+        List<MultipleChoiceQuestion> existingMultiQuestions = existingQuestions.stream()
+                .filter(Question::getIsMultiAnswer)
+                .map(question ->
+                        getMultipleChoiceQuestions(question.getQuestionId()))
+                .collect(ArrayList::new, List::addAll, List::addAll);
+
+        List<SurveyUpdateRequest.MultiQuestion> multiQuestionsToUpdate = request.getMultiQuestions();
+        existingMultiQuestions.forEach(multiQuestion -> {
+            Optional<SurveyUpdateRequest.MultiQuestion> multiQuestionToUpdate = multiQuestionsToUpdate
+                    .stream()
+                    .filter(m -> m.getMultiQuestionId() == multiQuestion.getMultiQuestionId())
+                    .findFirst();
+            multiQuestionToUpdate.ifPresentOrElse(
+                    m -> multiQuestion.updateMultipleChoiceQuestion(m.getMultiQuestionType(), m.getMultiQuestionContent(), m.getQuestionIndex()),
+                    () -> {
+                        multiQuestion.unsetQuestion();
+                        multiChoiceQuestionRepository.delete(multiQuestion);
+                    }
+            );
+        });
+
+        List<SurveyUpdateRequest.Question> questionsToUpdate = request.getQuestions();
+        existingQuestions.forEach(question -> {
+            Optional<SurveyUpdateRequest.Question> questionToUpdate = questionsToUpdate
+                    .stream()
+                    .filter(q -> q.getQuestionId() == question.getQuestionId())
+                    .findFirst();
+            questionToUpdate.ifPresentOrElse(
+                    q -> {
+                        question.updateQuestion(q.getIndex(), q.getTitle(), q.getType(), q.getIsMultipleAnswer());
+                        if (question.getIsMultiAnswer()) {
+                            multiQuestionsToUpdate
+                                    .stream()
+                                    .filter(multiQuestion ->
+                                            multiQuestion.getQuestionIndex() == question.getIndex()
+                                                    && multiQuestion.getMultiQuestionId() == null)
+                                    .forEach(multiQuestion ->
+                                            saveMultiChoiceQuestion(
+                                                    MultipleChoiceQuestion.builder()
+                                                            .question(question)
+                                                            .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                            .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                            .multiQuestionIndex(multiQuestion.getQuestionIndex())
+                                                            .build())
+                                    );
+                        }
+                    },
+                    () -> questionRepository.delete(question));
+        });
+
+        questionsToUpdate
+                .stream()
+                .filter(question ->
+                        question.getQuestionId() == null)
+                .forEach(question -> {
+                    Question savedQuestion = saveQuestion(Question.builder()
+                            .survey(survey)
+                            .title(question.getTitle())
+                            .index(question.getIndex())
+                            .type(question.getType())
+                            .isMultiAnswer(question.getIsMultipleAnswer())
+                            .build());
+
+                    if (question.getIsMultipleAnswer()) {
+                        multiQuestionsToUpdate
+                                .stream()
+                                .filter(multiQuestion ->
+                                        multiQuestion.getQuestionIndex() == question.getIndex()
+                                                && multiQuestion.getMultiQuestionId() == null)
+                                .forEach(multiQuestion ->
+                                        saveMultiChoiceQuestion(
+                                                MultipleChoiceQuestion.builder()
+                                                        .question(savedQuestion)
+                                                        .multiQuestionType(multiQuestion.getMultiQuestionType())
+                                                        .multiQuestionContent(multiQuestion.getMultiQuestionContent())
+                                                        .multiQuestionIndex(multiQuestion.getQuestionIndex())
+                                                        .build())
+                                );
+                    }
+                });
+    }
+
     private SurveyDetailsResponse getSurveyDetails(Survey survey) {
+        List<SurveyCategory> surveyCategories = getSurveyCategories(survey.getSurveyId());
         List<Question> questions = getQuestions(survey.getSurveyId());
         ArrayList<MultipleChoiceQuestion> multiQuestions = questions.stream()
                 .filter(Question::getIsMultiAnswer)
@@ -178,6 +314,7 @@ public class SurveyService {
 
         return SurveyDetailsResponse.builder()
                 .survey(survey)
+                .surveyCategories(surveyCategories)
                 .questions(questions)
                 .multipleChoiceQuestions(multiQuestions)
                 .build();
@@ -234,9 +371,9 @@ public class SurveyService {
         return surveyCategoryRepository.findSurveyCategoriesBySurvey(survey);
     }
 
-    private void validateUserAuthority(User user, Survey survey) {
+    private void validateUserAuthority(User user, Survey survey, ErrorCode errorCode) {
         if (user.getId() != survey.getUser().getId()) {
-            throw new ApiException(SurveyErrorCode.NO_PERMISSION_TO_DELETE_SURVEY);
+            throw new ApiException(errorCode);
         }
     }
 }

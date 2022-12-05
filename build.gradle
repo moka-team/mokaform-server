@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'com.mokaform'
-version = '0.0.13-SNAPSHOT'
+version = '0.0.22-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {
@@ -58,6 +58,9 @@ dependencies {
     // Embedded Redis
     implementation('it.ozimov:embedded-redis:0.7.3') { exclude group: "org.slf4j", module: "slf4j-simple" }
 
+    // Spring boot Starter Mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.5'
+
 }
 
 tasks.named('test') {
@@ -67,13 +70,26 @@ tasks.named('test') {
 // querydsl
 def querydslDir = "$buildDir/generated/querydsl" as Object
 
+// profile
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+println "profile = " + profile
+
 querydsl {
     jpa = true
     querydslSourcesDir = querydslDir
 }
+
 sourceSets {
-    main.java.srcDir querydslDir
+    main {
+        java {
+            srcDirs "src/main/java", querydslDir
+        }
+        resources {
+            srcDirs "src/main/resources", "src/main/resources-env/${profile}"
+        }
+    }
 }
+
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
@@ -82,4 +98,36 @@ configurations {
         extendsFrom annotationProcessor
     }
     querydsl.extendsFrom compileClasspath
+}
+
+// submodule에 있는 .yml 파일들을 'src/main/resources'로 복사
+task copySecurityFiles(type: Copy) {
+    // common
+    copy {
+        from "./mokaform-security/application-kic.yml",
+                "./mokaform-security/application-mail.yml"
+        into "./src/main/resources"
+    }
+    // dev
+    copy {
+        from "./mokaform-security/application-develop.yml",
+                "./mokaform-security/application-jwt-dev.yml"
+        into "./src/main/resources-env/dev"
+    }
+    // prod
+    copy {
+        from "./mokaform-security/application-prod.yml",
+                "./mokaform-security/application-jwt.yml"
+        into "./src/main/resources-env/prod"
+    }
+}
+
+tasks.processResources {
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+}
+
+bootRun {
+    String activeProfile = System.properties['spring.profiles.active']
+    println "active-profile: $activeProfile"
+    systemProperty "spring.profiles.active", activeProfile
 }
