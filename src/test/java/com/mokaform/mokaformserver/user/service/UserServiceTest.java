@@ -223,7 +223,7 @@ class UserServiceTest {
             void testSuccessfulLogin() {
                 // given
                 doReturn(Optional.of(user))
-                        .when(userRepository).findByEmail(any(String.class));
+                        .when(userRepository).findByEmailAndIsWithdraw(any(String.class), any(Boolean.class));
                 doReturn(true)
                         .when(passwordEncoder).matches(any(String.class), any(String.class));
 
@@ -241,7 +241,7 @@ class UserServiceTest {
                         .hasFieldOrPropertyWithValue("profileImage", user.getProfileImage())
                         .hasFieldOrPropertyWithValue("roles", user.getRoles());
 
-                verify(userRepository, times(1)).findByEmail(any(String.class));
+                verify(userRepository, times(1)).findByEmailAndIsWithdraw(any(String.class), any(Boolean.class));
                 verify(passwordEncoder, times(1)).matches(any(String.class), any(String.class));
             }
         }
@@ -257,7 +257,7 @@ class UserServiceTest {
                 String invalidPrincipal = "invalid@gmail.com";
 
                 doThrow(new UsernameNotFoundException("Could not found user for " + invalidPrincipal))
-                        .when(userRepository).findByEmail(any(String.class));
+                        .when(userRepository).findByEmailAndIsWithdraw(any(String.class), any(Boolean.class));
 
                 // when
                 // then
@@ -272,7 +272,7 @@ class UserServiceTest {
             void testNotMatchPassword() {
                 // given
                 doReturn(Optional.of(user))
-                        .when(userRepository).findByEmail(any(String.class));
+                        .when(userRepository).findByEmailAndIsWithdraw(any(String.class), any(Boolean.class));
                 doReturn(false)
                         .when(passwordEncoder).matches(any(String.class), any(String.class));
 
@@ -323,7 +323,7 @@ class UserServiceTest {
                 List<Category> categories = List.of(Category.DAILY_LIFE, Category.IT);
 
                 doReturn(Optional.of(user))
-                        .when(userRepository).findByEmail(any(String.class));
+                        .when(userRepository).findByEmailAndIsWithdraw(any(String.class), any(Boolean.class));
                 doReturn(categories.stream()
                         .map(category ->
                                 new PreferenceCategory(user, category))
@@ -356,7 +356,7 @@ class UserServiceTest {
             void testNotExistUserEmail() {
                 // given
                 doThrow(new ApiException(UserErrorCode.USER_NOT_FOUND))
-                        .when(userRepository).findByEmail(email);
+                        .when(userRepository).findByEmailAndIsWithdraw(email, false);
 
                 // when
                 // then
